@@ -1,12 +1,16 @@
-package de.php_perfect.intellij.ddev.database;
+package de.php_perfect.intellij.ddev.database
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
 
-public interface DdevDataSourceManager {
-    void updateDdevDataSource(final @NotNull DataSourceConfig dataSourceConfig);
+interface DdevDataSourceManager {
+    fun updateDdevDataSource(dataSourceConfig: DataSourceConfig)
 
-    static DdevDataSourceManager getInstance(final @NotNull Project project) {
-        return project.getService(DdevDataSourceManager.class);
+    fun dispose()
+
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): DdevDataSourceManager {
+            return project.getService(DdevDataSourceManager::class.java)
+        }
     }
 }

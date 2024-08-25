@@ -1,79 +1,69 @@
-package de.php_perfect.intellij.ddev.database;
+package de.php_perfect.intellij.ddev.database
 
-import com.intellij.database.dataSource.LocalDataSource;
-import com.intellij.database.dataSource.LocalDataSourceManager;
-import com.intellij.database.util.DataSourceUtilKt;
-import com.intellij.database.util.LoaderContext;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.index.IndexEntry;
-import de.php_perfect.intellij.ddev.index.ManagedConfigurationIndex;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.CoroutineContext;
-import kotlin.coroutines.EmptyCoroutineContext;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.database.dataSource.LocalDataSourceManager
+import com.intellij.database.util.LoaderContext
+import com.intellij.database.util.performAutoIntrospection
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.index.ManagedConfigurationIndex
+import kotlinx.coroutines.*
 
-public final class DdevDataSourceManagerImpl implements DdevDataSourceManager {
-    private static final @NotNull String LEGACY_DATA_SOURCE_NAME = "DDEV";
-    private static final @NotNull Logger LOG = Logger.getInstance(DdevDataSourceManagerImpl.class);
-    private final @NotNull Project project;
+class DdevDataSourceManagerImpl(private val project: Project) : DdevDataSourceManager {
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    public DdevDataSourceManagerImpl(final @NotNull Project project) {
-        this.project = project;
+    override fun updateDdevDataSource(dataSourceConfig: DataSourceConfig) {
+        coroutineScope.launch {
+            updateDataSourceAsync(dataSourceConfig)
+        }
     }
 
-    @Override
-    public void updateDdevDataSource(final @NotNull DataSourceConfig dataSourceConfig) {
-        final int hash = dataSourceConfig.hashCode();
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.project);
-        final IndexEntry indexEntry = managedConfigurationIndex.get(DataSourceConfig.class);
+    private suspend fun updateDataSourceAsync(dataSourceConfig: DataSourceConfig) {
+        val hash = dataSourceConfig.hashCode()
+        val managedConfigurationIndex = ManagedConfigurationIndex.getInstance(project)
+        val indexEntry = managedConfigurationIndex[DataSourceConfig::class.java]
 
-        final LocalDataSourceManager localDataSourceManager = LocalDataSourceManager.getInstance(this.project);
-        final var dataSources = localDataSourceManager.getDataSources();
-
-        LocalDataSource localDataSource = null;
-        if (indexEntry != null && (localDataSource = dataSources.stream()
-                .filter(currentDataSource -> currentDataSource.getUniqueId().equals(indexEntry.id()))
-                .findFirst()
-                .orElse(null)) != null && indexEntry.hashEquals(hash)) {
-            LOG.debug(String.format("Data source configuration %s is up to date", dataSourceConfig.name()));
-            return;
+        val localDataSourceManager = withContext(Dispatchers.EDT) {
+            LocalDataSourceManager.getInstance(project)
         }
 
-        LOG.debug(String.format("Updating data source configuration %s", dataSourceConfig.name()));
-
-        if (localDataSource == null) {
-            localDataSource = dataSources.stream()
-                    .filter(currentDataSource -> currentDataSource.getName().equals(LEGACY_DATA_SOURCE_NAME))
-                    .findFirst()
-                    .orElse(null);
+        val localDataSource = withContext(Dispatchers.EDT) {
+            val dataSources = localDataSourceManager.dataSources
+            indexEntry?.let { entry ->
+                dataSources.find { it.uniqueId == entry.id }
+            } ?: dataSources.find { it.name == LEGACY_DATA_SOURCE_NAME }
+            ?: localDataSourceManager.createEmpty().also { dataSources.add(it) }
         }
 
-        if (localDataSource == null) {
-            localDataSource = localDataSourceManager.createEmpty();
-            dataSources.add(localDataSource);
+        if (indexEntry != null && localDataSource.uniqueId == indexEntry.id && indexEntry.hashEquals(hash)) {
+            LOG.debug("Data source configuration ${dataSourceConfig.name} is up to date")
+            return
         }
 
-        final LocalDataSource dataSource = localDataSource;
-        DataSourceProvider.getInstance().updateDataSource(dataSource, dataSourceConfig);
+        LOG.debug("Updating data source configuration ${dataSourceConfig.name}")
 
-        ApplicationManager.getApplication().invokeLater(() -> {
-            localDataSourceManager.fireDataSourceUpdated(dataSource);
-            LoaderContext loaderContext = LoaderContext.selectGeneralTask(project, dataSource);
-            DataSourceUtilKt.performAutoIntrospection(loaderContext, false, new Continuation<>() {
-                @Override
-                public @NotNull CoroutineContext getContext() {
-                    return EmptyCoroutineContext.INSTANCE;
-                }
+        withContext(Dispatchers.EDT) {
+            DataSourceProvider.getInstance().updateDataSource(localDataSource, dataSourceConfig)
+            localDataSourceManager.fireDataSourceUpdated(localDataSource)
+        }
 
-                @Override
-                public void resumeWith(@NotNull Object o) {
+        val loaderContext = withContext(Dispatchers.EDT) {
+            LoaderContext.selectGeneralTask(project, localDataSource)
+        }
 
-                }
-            });
-        });
+        performAutoIntrospection(loaderContext, false)
 
-        managedConfigurationIndex.set(dataSource.getUniqueId(), DataSourceConfig.class, hash);
+        withContext(Dispatchers.EDT) {
+            managedConfigurationIndex[localDataSource.uniqueId, DataSourceConfig::class.java] = hash
+        }
+    }
+
+    override fun dispose() {
+        coroutineScope.cancel()
+    }
+
+    companion object {
+        private const val LEGACY_DATA_SOURCE_NAME = "DDEV"
+        private val LOG = Logger.getInstance(DdevDataSourceManagerImpl::class.java)
     }
 }
