@@ -1,12 +1,14 @@
-package de.php_perfect.intellij.ddev.php.server;
+package de.php_perfect.intellij.ddev.php.server
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
 
-public interface ServerConfigManager {
-    void configure(@NotNull ServerConfig serverConfig);
+interface ServerConfigManager {
+    fun configure(serverConfig: ServerConfig)
 
-    static ServerConfigManager getInstance(@NotNull Project project) {
-        return project.getService(ServerConfigManager.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): ServerConfigManager? {
+            return project.getService<ServerConfigManager?>(ServerConfigManager::class.java)
+        }
     }
 }

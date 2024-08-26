@@ -1,17 +1,22 @@
-package de.php_perfect.intellij.ddev.index;
+package de.php_perfect.intellij.ddev.index
 
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NonNls
 
-import java.util.Objects;
-
-public record IndexEntry(@NonNls @NotNull String id, @NonNls @Nullable String hash) {
-    public boolean hashEquals(int hash) {
-        return this.hashEquals(Integer.toHexString(hash));
+@JvmRecord
+data class IndexEntry(id: @NonNls String, hash: @NonNls String?) {
+    fun hashEquals(hash: Int): Boolean {
+        return this.hashEquals(Integer.toHexString(hash))
     }
 
-    public boolean hashEquals(@Nullable String hash) {
-        return Objects.equals(hash(), hash);
+    fun hashEquals(hash: String?): Boolean {
+        return this.hash == hash
+    }
+
+    val id: @NonNls String
+    val hash: @NonNls String?
+
+    init {
+        this.id = id
+        this.hash = hash
     }
 }

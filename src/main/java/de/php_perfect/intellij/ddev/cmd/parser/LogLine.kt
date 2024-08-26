@@ -1,7 +1,10 @@
-package de.php_perfect.intellij.ddev.cmd.parser;
+package de.php_perfect.intellij.ddev.cmd.parser
 
-import org.jetbrains.annotations.Nullable;
+@JvmRecord
+data class LogLine<T>(raw: T?) {
+    val raw: T?
 
-public record LogLine<T>(@Nullable T raw) {
-
+    init {
+        this.raw = raw
+    }
 }

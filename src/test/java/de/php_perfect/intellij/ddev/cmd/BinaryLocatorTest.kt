@@ -1,54 +1,57 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.execution.process.ProcessOutput;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.intellij.execution.process.ProcessOutput
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.SystemInfo
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.lang.Exception
 
-final class BinaryLocatorTest extends BasePlatformTestCase {
-    @Override
+internal class BinaryLocatorTest : BasePlatformTestCase() {
     @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Throws(Exception::class)
+    override fun setUp() {
+        super.setUp()
     }
 
-    @Override
     @AfterEach
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @Throws(Exception::class)
+    override fun tearDown() {
+        super.tearDown()
     }
 
     @Test
-    void findBinary() {
-        String expectedWhich = "which";
+    fun findBinary() {
+        var expectedWhich = "which"
         if (SystemInfo.isWindows) {
-            expectedWhich = "where";
+            expectedWhich = "where"
         }
 
-        ProcessOutput processOutput = new ProcessOutput("/foo/bar/bin/ddev", "", 0, false, false);
+        val processOutput = ProcessOutput("/foo/bar/bin/ddev", "", 0, false, false)
 
-        MockProcessExecutor mockProcessExecutor = (MockProcessExecutor) ApplicationManager.getApplication().getService(ProcessExecutor.class);
-        mockProcessExecutor.addProcessOutput(expectedWhich + " ddev", processOutput);
+        val mockProcessExecutor = ApplicationManager.getApplication()
+            .getService<ProcessExecutor?>(ProcessExecutor::class.java) as MockProcessExecutor
+        mockProcessExecutor.addProcessOutput(expectedWhich + " ddev", processOutput)
 
-        Assertions.assertEquals("/foo/bar/bin/ddev", new BinaryLocatorImpl().findInPath(getProject()));
+        Assertions.assertEquals("/foo/bar/bin/ddev", BinaryLocatorImpl().findInPath(getProject()))
     }
 
     @Test
-    void isNotInstalled() {
-        String expectedWhich = "which";
+    fun isNotInstalled() {
+        var expectedWhich = "which"
         if (SystemInfo.isWindows) {
-            expectedWhich = "where";
+            expectedWhich = "where"
         }
 
-        ProcessOutput processOutput = new ProcessOutput("", "", 1, false, false);
+        val processOutput = ProcessOutput("", "", 1, false, false)
 
-        MockProcessExecutor mockProcessExecutor = (MockProcessExecutor) ApplicationManager.getApplication().getService(ProcessExecutor.class);
-        mockProcessExecutor.addProcessOutput(expectedWhich + " ddev", processOutput);
+        val mockProcessExecutor = ApplicationManager.getApplication()
+            .getService<ProcessExecutor?>(ProcessExecutor::class.java) as MockProcessExecutor
+        mockProcessExecutor.addProcessOutput(expectedWhich + " ddev", processOutput)
 
-        Assertions.assertNull(new BinaryLocatorImpl().findInPath(getProject()));
+        Assertions.assertNull(BinaryLocatorImpl().findInPath(getProject()))
     }
 }

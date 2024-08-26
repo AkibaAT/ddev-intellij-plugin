@@ -1,21 +1,19 @@
-package de.php_perfect.intellij.ddev.actions;
+package de.php_perfect.intellij.ddev.actions
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.state.DdevStateManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.DumbAwareAction
+import de.php_perfect.intellij.ddev.state.DdevStateManager
 
-public final class SyncStateAction extends DumbAwareAction {
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        Project project = e.getProject();
+class SyncStateAction : DumbAwareAction() {
+    override fun actionPerformed(e: AnActionEvent) {
+        val project = e.getProject()
 
         if (project == null) {
-            return;
+            return
         }
 
-        ApplicationManager.getApplication().executeOnPooledThread(() -> DdevStateManager.getInstance(project).updateDescription());
+        ApplicationManager.getApplication()
+            .executeOnPooledThread(Runnable { DdevStateManager.getInstance(project).updateDescription() })
     }
 }

@@ -1,14 +1,16 @@
-package de.php_perfect.intellij.ddev.cmd.parser;
+package de.php_perfect.intellij.ddev.cmd.parser
 
-import com.intellij.openapi.application.ApplicationManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.application.ApplicationManager
+import java.lang.reflect.Type
 
-import java.lang.reflect.Type;
+interface JsonParser {
+    @Throws(JsonParserException::class)
+    fun <T> parse(json: String?, typeOfT: Type?): T
 
-public interface JsonParser {
-    <T> @NotNull T parse(final String json, final Type typeOfT) throws JsonParserException;
-
-    static @NotNull JsonParser getInstance() {
-        return ApplicationManager.getApplication().getService(JsonParser.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(): JsonParser {
+            return ApplicationManager.getApplication().getService<JsonParser>(JsonParser::class.java)
+        }
     }
 }

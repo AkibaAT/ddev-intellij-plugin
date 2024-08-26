@@ -1,26 +1,27 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
 
-public interface DdevRunner {
+interface DdevRunner {
+    fun start(project: Project)
 
-    void start(@NotNull Project project);
+    fun restart(project: Project)
 
-    void restart(@NotNull Project project);
+    fun stop(project: Project)
 
-    void stop(@NotNull Project project);
+    fun powerOff(project: Project)
 
-    void powerOff(@NotNull Project project);
+    fun delete(project: Project)
 
-    void delete(@NotNull Project project);
+    fun share(project: Project)
 
-    void share(@NotNull Project project);
+    fun config(project: Project)
 
-    void config(@NotNull Project project);
-
-    static DdevRunner getInstance() {
-        return ApplicationManager.getApplication().getService(DdevRunner.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(): DdevRunner? {
+            return ApplicationManager.getApplication().getService<DdevRunner?>(DdevRunner::class.java)
+        }
     }
 }

@@ -1,34 +1,28 @@
-package de.php_perfect.intellij.ddev;
+package de.php_perfect.intellij.ddev
 
-import com.intellij.DynamicBundle;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.PropertyKey;
+import com.intellij.DynamicBundle
+import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.PropertyKey
+import java.util.function.Supplier
 
-import java.util.function.Supplier;
+@NonNls
+private const val BUNDLE = "messages.DdevIntegrationBundle"
 
-public final class DdevIntegrationBundle extends DynamicBundle {
-
+object DdevIntegrationBundle : DynamicBundle(BUNDLE) {
     @NonNls
-    private static final @NotNull String BUNDLE = "messages.DdevIntegrationBundle";
-    private static final @NotNull DdevIntegrationBundle INSTANCE = new DdevIntegrationBundle();
+    private const val BUNDLE = "messages.DdevIntegrationBundle"
 
-    private DdevIntegrationBundle() {
-        super(BUNDLE);
-    }
+    @Nls
+    fun message(
+        @PropertyKey(resourceBundle = BUNDLE) key: String,
+        vararg params: Any
+    ): String = getMessage(key, *params)
 
-    @NotNull
-    public static @Nls String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, Object @NotNull ... params) {
-        return INSTANCE.getMessage(key, params);
-    }
+    fun messagePointer(
+        @PropertyKey(resourceBundle = BUNDLE) key: String,
+        vararg params: Any
+    ): Supplier<@Nls String> = getLazyMessage(key, *params)
 
-    @NotNull
-    public static Supplier<@Nls String> messagePointer(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, Object @NotNull ... params) {
-        return INSTANCE.getLazyMessage(key, params);
-    }
-
-    public static String getName() {
-        return BUNDLE;
-    }
+    fun getName(): String = BUNDLE
 }

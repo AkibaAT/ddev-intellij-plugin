@@ -1,71 +1,57 @@
-package de.php_perfect.intellij.ddev.actions;
+package de.php_perfect.intellij.ddev.actions
 
-import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsActions;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.state.DdevStateManager;
-import de.php_perfect.intellij.ddev.state.State;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.NlsActions
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.state.DdevStateManager
+import java.net.URL
+import java.util.Objects
+import javax.swing.Icon
 
-import javax.swing.*;
-import java.net.URL;
-import java.util.Objects;
+class OpenServiceAction(
+    private val url: URL, text: @NlsActions.ActionText String,
+    description: @NlsActions.ActionDescription String?, icon: Icon?
+) : DdevAwareAction(text, description, icon) {
 
-public final class OpenServiceAction extends DdevAwareAction {
-
-    private final @NotNull URL url;
-
-    public OpenServiceAction(@NotNull URL url, @NotNull @NlsActions.ActionText String text,
-                             @Nullable @NlsActions.ActionDescription String description, @Nullable Icon icon) {
-        super(text, description, icon);
-        this.url = url;
+    override fun actionPerformed(e: AnActionEvent) {
+        BrowserUtil.browse(this.url)
     }
 
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        BrowserUtil.browse(this.url);
-    }
-
-    @Override
-    protected boolean isActive(@NotNull Project project) {
-        final State state = DdevStateManager.getInstance(project).getState();
+    override fun isActive(project: Project): Boolean {
+        val state = DdevStateManager.getInstance(project).getState()
 
         if (!state.isAvailable() || !state.isConfigured()) {
-            return false;
+            return false
         }
 
-        Description description = state.getDescription();
+        val description = state.getDescription()
 
         if (description == null) {
-            return false;
+            return false
         }
 
-        return description.getStatus() == Description.Status.RUNNING;
+        return description.getStatus() == Description.Status.RUNNING
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
+    override fun equals(o: Any?): Boolean {
+        if (this === o) {
+            return true
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
+        if (o == null || javaClass != o.javaClass) {
+            return false
         }
-        final OpenServiceAction that = (OpenServiceAction) o;
-        return Objects.equals(url, that.url);
+        val that = o as OpenServiceAction
+        return url == that.url
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(url);
+    override fun hashCode(): Int {
+        return Objects.hash(url)
     }
 
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
     }
 }

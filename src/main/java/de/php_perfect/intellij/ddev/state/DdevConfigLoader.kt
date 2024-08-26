@@ -1,16 +1,17 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 
-public interface DdevConfigLoader {
-    boolean exists();
+interface DdevConfigLoader {
+    fun exists(): Boolean
 
-    @Nullable VirtualFile load();
+    fun load(): VirtualFile?
 
-    static DdevConfigLoader getInstance(@NotNull Project project) {
-        return project.getService(DdevConfigLoader.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): DdevConfigLoader? {
+            return project.getService<DdevConfigLoader?>(DdevConfigLoader::class.java)
+        }
     }
 }

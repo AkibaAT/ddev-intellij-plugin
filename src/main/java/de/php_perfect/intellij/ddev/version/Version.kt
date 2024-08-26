@@ -1,53 +1,49 @@
-package de.php_perfect.intellij.ddev.version;
+package de.php_perfect.intellij.ddev.version
 
-import org.jetbrains.annotations.NotNull;
+import kotlin.math.max
 
-import java.util.Arrays;
-
-public final class Version implements Comparable<Version> {
-
-    public final int @NotNull [] numbers;
+class Version(version: String) : Comparable<Version?> {
+    @JvmField
+    val numbers: IntArray
 
 
-    public final @NotNull String string;
+    val string: String
 
-    public Version(@NotNull String version) {
-        this.string = version;
-        final String[] split = version.replaceAll("^v", "").split("-")[0].split("\\.");
-        numbers = new int[split.length];
-        for (int i = 0; i < split.length; i++) {
-            numbers[i] = Integer.parseInt(split[i]);
+    init {
+        this.string = version
+        val split: Array<String?> =
+            version.replace("^v".toRegex(), "").split("-".toRegex()).dropLastWhile { it.isEmpty() }
+                .toTypedArray()[0].split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        numbers = IntArray(split.size)
+        for (i in split.indices) {
+            numbers[i] = split[i]!!.toInt()
         }
     }
 
-    @Override
-    public int compareTo(@NotNull Version another) {
-        final int maxLength = Math.max(numbers.length, another.numbers.length);
-        for (int i = 0; i < maxLength; i++) {
-            final int left = i < numbers.length ? numbers[i] : 0;
-            final int right = i < another.numbers.length ? another.numbers[i] : 0;
+    override fun compareTo(other: Version?): Int {
+        val maxLength: Double = max(numbers.size.toDouble(), other?.numbers?.size?.toDouble() ?: 0.0)
+        for (i in 0 until maxLength.toInt()) {
+            val left = if (i < numbers.size) numbers[i] else 0
+            val right = if (i < (other?.numbers?.size ?: 0)) other?.numbers?.get(i) ?: 0 else 0
             if (left != right) {
-                return left < right ? -1 : 1;
+                return if (left < right) -1 else 1
             }
         }
-        return 0;
+        return 0
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Version version = (Version) o;
-        return Arrays.equals(numbers, version.numbers);
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val version = o as Version
+        return numbers.contentEquals(version.numbers)
     }
 
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(numbers);
+    override fun hashCode(): Int {
+        return numbers.contentHashCode()
     }
 
-    @Override
-    public String toString() {
-        return this.string;
+    override fun toString(): String {
+        return this.string
     }
 }

@@ -1,31 +1,36 @@
-package de.php_perfect.intellij.ddev.dockerCompose;
+package de.php_perfect.intellij.ddev.dockerCompose
 
-import de.php_perfect.intellij.ddev.index.IndexableConfiguration;
-import org.jetbrains.annotations.NotNull;
+import de.php_perfect.intellij.ddev.index.IndexableConfiguration
+import java.util.Objects
 
-import java.util.List;
-import java.util.Objects;
-
-public record DockerComposeConfig(@NotNull List<String> composeFilePaths,
-                                  @NotNull String projectName) implements IndexableConfiguration {
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DockerComposeConfig that = (DockerComposeConfig) o;
-        return Objects.equals(composeFilePaths, that.composeFilePaths) && Objects.equals(projectName, that.projectName);
+@JvmRecord
+data class DockerComposeConfig(
+    composeFilePaths: MutableList<String?>,
+    projectName: String
+) : IndexableConfiguration {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as DockerComposeConfig
+        return composeFilePaths == that.composeFilePaths && projectName == that.projectName
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(composeFilePaths, projectName);
+    override fun hashCode(): Int {
+        return Objects.hash(composeFilePaths, projectName)
     }
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "DockerComposeConfig{" +
                 "composeFilePaths=" + composeFilePaths +
                 ", projectName='" + projectName + '\'' +
-                '}';
+                '}'
+    }
+
+    val composeFilePaths: MutableList<String?>
+    val projectName: String
+
+    init {
+        this.composeFilePaths = composeFilePaths
+        this.projectName = projectName
     }
 }

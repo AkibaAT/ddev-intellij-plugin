@@ -1,136 +1,188 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.google.gson.annotations.SerializedName;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.google.gson.annotations.SerializedName
+import java.util.HashMap
+import java.util.Objects
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+class Description(
+    name: String?,
+    phpVersion: String?,
+    status: Status?,
+    mailHogHttpsUrl: String?,
+    mailHogHttpUrl: String?,
+    mailpitHttpsUrl: String?,
+    mailpitHttpUrl: String?,
+    services: MutableMap<String?, Service?>?,
+    databaseInfo: DatabaseInfo?,
+    primaryUrl: String?
+) {
+    enum class Status {
+        @SerializedName("running")
+        RUNNING,
 
-public class Description {
+        @SerializedName("starting")
+        STARTING,
 
-    public enum Status {
-        @SerializedName("running") RUNNING,
-        @SerializedName("starting") STARTING,
-        @SerializedName("stopped") STOPPED,
-        @SerializedName("project directory missing") DIR_MISSING,
-        @SerializedName(".ddev/config.yaml missing") CONFIG_MISSING,
-        @SerializedName("paused") PAUSED,
-        @SerializedName("unhealthy") UNHEALTHY,
+        @SerializedName("stopped")
+        STOPPED,
+
+        @SerializedName("project directory missing")
+        DIR_MISSING,
+
+        @SerializedName(".ddev/config.yaml missing")
+        CONFIG_MISSING,
+
+        @SerializedName("paused")
+        PAUSED,
+
+        @SerializedName("unhealthy")
+        UNHEALTHY,
     }
 
-    private final @Nullable String name;
+    private val name: String?
 
-    private final @Nullable String phpVersion;
+    private val phpVersion: String?
 
-    private final @Nullable Status status;
+    private val status: Status?
 
     @SerializedName("mailhog_https_url")
-    private final @Nullable String mailHogHttpsUrl;
+    private val mailHogHttpsUrl: String?
 
     @SerializedName("mailhog_url")
-    private final @Nullable String mailHogHttpUrl;
+    private val mailHogHttpUrl: String?
 
-    private final @Nullable String mailpitHttpsUrl;
+    private val mailpitHttpsUrl: String?
 
-    private final @Nullable String mailpitHttpUrl;
+    private val mailpitHttpUrl: String?
 
 
-    private final @Nullable Map<String, Service> services;
+    private val services: MutableMap<String?, Service?>?
 
     @SerializedName("dbinfo")
-    private final @Nullable DatabaseInfo databaseInfo;
+    private val databaseInfo: DatabaseInfo?
 
     @SerializedName("primary_url")
-    private final @Nullable String primaryUrl;
+    private val primaryUrl: String?
 
-    public Description(@Nullable String name, @Nullable String phpVersion, @Nullable Status status, @Nullable String mailHogHttpsUrl, @Nullable String mailHogHttpUrl, @Nullable String mailpitHttpsUrl, @Nullable String mailpitHttpUrl, @Nullable DatabaseInfo databaseInfo, @Nullable String primaryUrl) {
-        this(name, phpVersion, status, mailHogHttpsUrl, mailHogHttpUrl, mailpitHttpsUrl, mailpitHttpUrl, new HashMap<>(), databaseInfo, primaryUrl);
+    constructor(
+        name: String?,
+        phpVersion: String?,
+        status: Status?,
+        mailHogHttpsUrl: String?,
+        mailHogHttpUrl: String?,
+        mailpitHttpsUrl: String?,
+        mailpitHttpUrl: String?,
+        databaseInfo: DatabaseInfo?,
+        primaryUrl: String?
+    ) : this(
+        name,
+        phpVersion,
+        status,
+        mailHogHttpsUrl,
+        mailHogHttpUrl,
+        mailpitHttpsUrl,
+        mailpitHttpUrl,
+        HashMap<String?, Service?>(),
+        databaseInfo,
+        primaryUrl
+    )
+
+    init {
+        this.name = name
+        this.phpVersion = phpVersion
+        this.status = status
+        this.mailHogHttpsUrl = mailHogHttpsUrl
+        this.mailHogHttpUrl = mailHogHttpUrl
+        this.mailpitHttpsUrl = mailpitHttpsUrl
+        this.mailpitHttpUrl = mailpitHttpUrl
+        this.services = services
+        this.databaseInfo = databaseInfo
+        this.primaryUrl = primaryUrl
     }
 
-    public Description(@Nullable String name, @Nullable String phpVersion, @Nullable Status status, @Nullable String mailHogHttpsUrl, @Nullable String mailHogHttpUrl, @Nullable String mailpitHttpsUrl, @Nullable String mailpitHttpUrl, @Nullable Map<String, Service> services, @Nullable DatabaseInfo databaseInfo, @Nullable String primaryUrl) {
-        this.name = name;
-        this.phpVersion = phpVersion;
-        this.status = status;
-        this.mailHogHttpsUrl = mailHogHttpsUrl;
-        this.mailHogHttpUrl = mailHogHttpUrl;
-        this.mailpitHttpsUrl = mailpitHttpsUrl;
-        this.mailpitHttpUrl = mailpitHttpUrl;
-        this.services = services;
-        this.databaseInfo = databaseInfo;
-        this.primaryUrl = primaryUrl;
+    fun getName(): String? {
+        return name
     }
 
-    public @Nullable String getName() {
-        return name;
+    fun getPhpVersion(): String? {
+        return this.phpVersion
     }
 
-    public @Nullable String getPhpVersion() {
-        return this.phpVersion;
+    fun getStatus(): Status? {
+        return this.status
     }
 
-    public @Nullable Status getStatus() {
-        return this.status;
+    fun getMailHogHttpsUrl(): String? {
+        return this.mailHogHttpsUrl
     }
 
-    public @Nullable String getMailHogHttpsUrl() {
-        return this.mailHogHttpsUrl;
+    fun getMailHogHttpUrl(): String? {
+        return this.mailHogHttpUrl
     }
 
-    public @Nullable String getMailHogHttpUrl() {
-        return this.mailHogHttpUrl;
+    fun getMailpitHttpsUrl(): String? {
+        return mailpitHttpsUrl
     }
 
-    public @Nullable String getMailpitHttpsUrl() {
-        return mailpitHttpsUrl;
+    fun getMailpitHttpUrl(): String? {
+        return mailpitHttpUrl
     }
 
-    public @Nullable String getMailpitHttpUrl() {
-        return mailpitHttpUrl;
-    }
-
-    public @NotNull Map<String, Service> getServices() {
+    fun getServices(): MutableMap<String?, Service?> {
         if (this.services == null) {
-            return new HashMap<>();
+            return HashMap<String?, Service?>()
         }
 
-        var serviceMap = new HashMap<>(this.services);
+        val serviceMap = HashMap<String?, Service?>(this.services)
 
         if (this.getMailHogHttpsUrl() != null || this.getMailHogHttpUrl() != null) {
-            serviceMap.put("mailhog", new Service("ddev-" + this.getName() + "-mailhog", this.getMailHogHttpsUrl(), this.getMailHogHttpUrl()));
+            serviceMap.put(
+                "mailhog",
+                Service("ddev-" + this.getName() + "-mailhog", this.getMailHogHttpsUrl(), this.getMailHogHttpUrl())
+            )
         }
 
         if (this.getMailpitHttpsUrl() != null || this.getMailpitHttpUrl() != null) {
-            serviceMap.put("mailpit", new Service("ddev-" + this.getName() + "-mailpit", this.getMailpitHttpsUrl(), this.getMailpitHttpsUrl()));
+            serviceMap.put(
+                "mailpit",
+                Service("ddev-" + this.getName() + "-mailpit", this.getMailpitHttpsUrl(), this.getMailpitHttpsUrl())
+            )
         }
 
-        return serviceMap;
+        return serviceMap
     }
 
-    public @Nullable DatabaseInfo getDatabaseInfo() {
-        return databaseInfo;
+    fun getDatabaseInfo(): DatabaseInfo? {
+        return databaseInfo
     }
 
-    public @Nullable String getPrimaryUrl() {
-        return primaryUrl;
+    fun getPrimaryUrl(): String? {
+        return primaryUrl
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Description that = (Description) o;
-        return Objects.equals(getName(), that.getName()) && Objects.equals(getPhpVersion(), that.getPhpVersion()) && getStatus() == that.getStatus() && Objects.equals(getMailHogHttpsUrl(), that.getMailHogHttpsUrl()) && Objects.equals(getMailHogHttpUrl(), that.getMailHogHttpUrl()) && Objects.equals(getMailpitHttpsUrl(), that.getMailpitHttpsUrl()) && Objects.equals(getMailpitHttpUrl(), that.getMailpitHttpUrl()) && Objects.equals(getServices(), that.getServices()) && Objects.equals(getDatabaseInfo(), that.getDatabaseInfo()) && Objects.equals(getPrimaryUrl(), that.getPrimaryUrl());
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as Description
+        return getName() == that.getName() && getPhpVersion() == that.getPhpVersion() && getStatus() == that.getStatus() && getMailHogHttpsUrl() == that.getMailHogHttpsUrl() && getMailHogHttpUrl() == that.getMailHogHttpUrl() && getMailpitHttpsUrl() == that.getMailpitHttpsUrl() && getMailpitHttpUrl() == that.getMailpitHttpUrl() && getServices() == that.getServices() && getDatabaseInfo() == that.getDatabaseInfo() && getPrimaryUrl() == that.getPrimaryUrl()
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getPhpVersion(), getStatus(), getMailHogHttpsUrl(), getMailHogHttpUrl(), getMailpitHttpsUrl(), getMailpitHttpUrl(), getServices(), getDatabaseInfo(), getPrimaryUrl());
+    override fun hashCode(): Int {
+        return Objects.hash(
+            getName(),
+            getPhpVersion(),
+            getStatus(),
+            getMailHogHttpsUrl(),
+            getMailHogHttpUrl(),
+            getMailpitHttpsUrl(),
+            getMailpitHttpUrl(),
+            getServices(),
+            getDatabaseInfo(),
+            getPrimaryUrl()
+        )
     }
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "Description{" +
                 "name='" + name + '\'' +
                 ", phpVersion='" + phpVersion + '\'' +
@@ -142,6 +194,6 @@ public class Description {
                 ", services=" + services +
                 ", databaseInfo=" + databaseInfo +
                 ", primaryUrl='" + primaryUrl + '\'' +
-                '}';
+                '}'
     }
 }

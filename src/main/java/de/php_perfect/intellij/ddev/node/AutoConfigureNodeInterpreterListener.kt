@@ -1,39 +1,35 @@
-package de.php_perfect.intellij.ddev.node;
+package de.php_perfect.intellij.ddev.node
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import de.php_perfect.intellij.ddev.DescriptionChangedListener;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.dockerCompose.DdevComposeFileLoader;
-import de.php_perfect.intellij.ddev.settings.DdevSettingsState;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.DescriptionChangedListener
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.dockerCompose.DdevComposeFileLoader.Companion.getInstance
+import de.php_perfect.intellij.ddev.dockerCompose.DockerComposeCredentialProvider.Companion.getInstance
+import de.php_perfect.intellij.ddev.settings.DdevSettingsState
 
-public final class AutoConfigureNodeInterpreterListener implements DescriptionChangedListener {
+class AutoConfigureNodeInterpreterListener(project: Project) : DescriptionChangedListener {
+    private val project: Project
 
-    private final @NotNull Project project;
-
-    public AutoConfigureNodeInterpreterListener(@NotNull Project project) {
-        this.project = project;
+    init {
+        this.project = project
     }
 
-    @Override
-    public void onDescriptionChanged(@Nullable Description description) {
+    override fun onDescriptionChanged(description: Description?) {
         if (description == null || description.getName() == null) {
-            return;
+            return
         }
 
         if (!DdevSettingsState.getInstance(this.project).autoConfigureNodeJsInterpreter) {
-            return;
+            return
         }
 
-        final VirtualFile composeFile = DdevComposeFileLoader.getInstance(this.project).load();
+        val composeFile = getInstance(this.project)!!.load()
 
         if (composeFile == null || !composeFile.exists()) {
-            return;
+            return
         }
 
-        final NodeInterpreterConfig nodeInterpreterConfig = new NodeInterpreterConfig(description.getName(), composeFile.getPath(), "node");
-        NodeInterpreterProvider.getInstance(this.project).configureNodeInterpreter(nodeInterpreterConfig);
+        val nodeInterpreterConfig = NodeInterpreterConfig(description.getName()!!, composeFile.getPath(), "node")
+        NodeInterpreterProvider.Companion.getInstance(this.project).configureNodeInterpreter(nodeInterpreterConfig)
     }
 }

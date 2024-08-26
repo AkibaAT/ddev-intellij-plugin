@@ -1,24 +1,21 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.execution.wsl.WSLDistribution;
-import com.intellij.execution.wsl.WslPath;
-import com.intellij.openapi.util.SystemInfo;
+import com.intellij.execution.wsl.WSLDistribution
+import com.intellij.openapi.util.SystemInfo
 
-final class WhichProvider {
-    public static String getWhichCommand(String workingDirectory) {
+internal object WhichProvider {
+    fun getWhichCommand(workingDirectory: String): String {
         if (!SystemInfo.isWindows) {
-            return "which";
+            return "which"
         }
 
-        WSLDistribution distribution = WslPath.getDistributionByWindowsUncPath(workingDirectory);
+        val distribution: WSLDistribution? =
+            getDistributionByWindowsUncPath.getDistributionByWindowsUncPath(workingDirectory)
 
         if (distribution != null) {
-            return "which";
+            return "which"
         }
 
-        return "where";
-    }
-
-    private WhichProvider() {
+        return "where"
     }
 }

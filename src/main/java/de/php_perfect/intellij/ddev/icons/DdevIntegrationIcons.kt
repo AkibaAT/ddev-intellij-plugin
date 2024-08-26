@@ -1,14 +1,13 @@
-package de.php_perfect.intellij.ddev.icons;
+package de.php_perfect.intellij.ddev.icons
 
-import com.intellij.ui.IconManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.ui.IconManager.getIcon
+import javax.swing.Icon
 
-import javax.swing.*;
-
-public final class DdevIntegrationIcons {
-    public static final @NotNull Icon DdevLogoColor = IconManager.getInstance().getIcon("/icons/ddevLogoColor.svg", DdevIntegrationIcons.class.getClassLoader());
-    public static final @NotNull Icon DdevLogoMono = IconManager.getInstance().getIcon("/icons/ddevLogoGrey.svg", DdevIntegrationIcons.class.getClassLoader());
-
-    private DdevIntegrationIcons() {
-    }
+object DdevIntegrationIcons {
+    @JvmField
+    val DdevLogoColor: Icon =
+        getInstance.getInstance().getIcon("/icons/ddevLogoColor.svg", DdevIntegrationIcons::class.java.getClassLoader())
+    @JvmField
+    val DdevLogoMono: Icon =
+        getInstance.getInstance().getIcon("/icons/ddevLogoGrey.svg", DdevIntegrationIcons::class.java.getClassLoader())
 }

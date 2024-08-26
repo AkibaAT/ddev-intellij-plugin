@@ -1,14 +1,15 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
 
-public interface BinaryLocator {
-    @Nullable String findInPath(@NotNull Project project);
+interface BinaryLocator {
+    fun findInPath(project: Project): String?
 
-    static BinaryLocator getInstance() {
-        return ApplicationManager.getApplication().getService(BinaryLocator.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(): BinaryLocator? {
+            return ApplicationManager.getApplication().getService<BinaryLocator?>(BinaryLocator::class.java)
+        }
     }
 }

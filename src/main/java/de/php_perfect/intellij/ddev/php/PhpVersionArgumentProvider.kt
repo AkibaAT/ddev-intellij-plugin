@@ -1,15 +1,12 @@
-package de.php_perfect.intellij.ddev.php;
+package de.php_perfect.intellij.ddev.php
 
-import com.intellij.openapi.project.Project;
-import com.jetbrains.php.config.PhpLanguageLevel;
-import de.php_perfect.intellij.ddev.DdevConfigArgumentProvider;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
+import com.jetbrains.php.config.PhpLanguageLevel
+import de.php_perfect.intellij.ddev.DdevConfigArgumentProvider
+import java.util.List
 
-import java.util.List;
-
-public final class PhpVersionArgumentProvider implements DdevConfigArgumentProvider {
-    @Override
-    public @NotNull List<@NotNull String> getAdditionalArguments(@NotNull Project project) {
-        return List.of("--php-version", PhpLanguageLevel.current(project).getPresentableName());
+class PhpVersionArgumentProvider : DdevConfigArgumentProvider {
+    override fun getAdditionalArguments(project: Project): MutableList<String> {
+        return List.of<String>("--php-version", PhpLanguageLevel.current(project).getPresentableName())
     }
 }

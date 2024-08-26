@@ -1,42 +1,33 @@
-package de.php_perfect.intellij.ddev.php.server;
+package de.php_perfect.intellij.ddev.php.server
 
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.DescriptionChangedListener;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.DescriptionChangedListener
+import de.php_perfect.intellij.ddev.cmd.Description
+import java.net.URI
+import java.net.URISyntaxException
 
-import java.net.URI;
-import java.net.URISyntaxException;
+class ConfigureServerListener(private val project: Project) : DescriptionChangedListener {
 
-public final class ConfigureServerListener implements DescriptionChangedListener {
-    private final @NotNull Project project;
-
-    public ConfigureServerListener(@NotNull Project project) {
-        this.project = project;
-    }
-
-    @Override
-    public void onDescriptionChanged(@Nullable Description description) {
-        String localPath = this.project.getBasePath();
+    override fun onDescriptionChanged(description: Description?) {
+        val localPath = this.project.basePath
 
         if (description == null || localPath == null) {
-            return;
+            return
         }
 
         if (description.getPrimaryUrl() == null) {
-            return;
+            return
         }
 
 
-        URI uri;
+        var uri: URI?
         try {
-            uri = new URI(description.getPrimaryUrl());
-        } catch (URISyntaxException ignored) {
-            return;
+            uri = URI(description.getPrimaryUrl())
+        } catch (ignored: URISyntaxException) {
+            return
         }
 
-        ServerConfig serverConfig = new ServerConfig(localPath, "/var/www/html", uri);
-        ServerConfigManager.getInstance(this.project).configure(serverConfig);
+        val serverConfig = ServerConfig(localPath, "/var/www/html", uri)
+        ServerConfigManager.Companion.getInstance(this.project)?.configure(serverConfig)
     }
 }

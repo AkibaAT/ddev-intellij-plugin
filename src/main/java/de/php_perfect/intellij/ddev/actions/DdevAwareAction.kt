@@ -1,34 +1,30 @@
-package de.php_perfect.intellij.ddev.actions;
+package de.php_perfect.intellij.ddev.actions
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsActions;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.NlsActions
+import javax.swing.Icon
 
-import javax.swing.*;
+abstract class DdevAwareAction : DumbAwareAction {
+    constructor() : super()
 
-abstract class DdevAwareAction extends DumbAwareAction {
-    DdevAwareAction() {
-        super();
-    }
+    constructor(
+        text: @NlsActions.ActionText String?,
+        description: @NlsActions.ActionDescription String?,
+        icon: Icon?
+    ) : super(text, description, icon)
 
-    DdevAwareAction(@Nullable @NlsActions.ActionText String text, @Nullable @NlsActions.ActionDescription String description, @Nullable Icon icon) {
-        super(text, description, icon);
-    }
-
-    @Override
-    public void update(@NotNull AnActionEvent e) {
-        final Project project = e.getProject();
+    override fun update(e: AnActionEvent) {
+        val project = e.project
 
         if (project == null) {
-            e.getPresentation().setEnabled(false);
-            return;
+            e.presentation.isEnabled = false
+            return
         }
 
-        e.getPresentation().setEnabled(this.isActive(project));
+        e.presentation.isEnabled = this.isActive(project)
     }
 
-    protected abstract boolean isActive(@NotNull Project project);
+    protected abstract fun isActive(project: Project): Boolean
 }

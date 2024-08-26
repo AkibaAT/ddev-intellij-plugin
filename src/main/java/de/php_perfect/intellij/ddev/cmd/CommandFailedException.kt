@@ -1,11 +1,9 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-public class CommandFailedException extends Exception {
-    public CommandFailedException(String message) {
-        super(message);
-    }
+import java.lang.Exception
 
-    public CommandFailedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+class CommandFailedException : Exception {
+    constructor(message: String?) : super(message)
+
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
 }

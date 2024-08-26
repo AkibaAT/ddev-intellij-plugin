@@ -1,102 +1,114 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.ProcessOutput;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.cmd.parser.JsonParser;
-import de.php_perfect.intellij.ddev.cmd.parser.JsonParserException;
-import de.php_perfect.intellij.ddev.version.Version;
-import org.apache.commons.compress.utils.Lists;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.execution.ExecutionException
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.ProcessOutput
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.cmd.parser.JsonParser.Companion.getInstance
+import de.php_perfect.intellij.ddev.cmd.parser.JsonParserException
+import de.php_perfect.intellij.ddev.version.Version
+import org.apache.commons.compress.utils.Lists
+import java.lang.reflect.Type
+import java.util.regex.Pattern
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-public final class DdevImpl implements Ddev {
-    private static final int COMMAND_TIMEOUT = 8_000;
-
-    @Override
-    public @NotNull Version version(@NotNull String binary, @NotNull Project project) throws CommandFailedException {
-        final String versionString = this.executePlain(binary, "--version", project);
-        final Pattern r = Pattern.compile("ddev version (v.*)$");
-        final Matcher m = r.matcher(versionString);
+class DdevImpl : Ddev {
+    @Throws(CommandFailedException::class)
+    override fun version(binary: String, project: Project): Version {
+        val versionString = this.executePlain(binary, "--version", project)
+        val r = Pattern.compile("ddev version (v.*)$")
+        val m = r.matcher(versionString)
 
         if (m.find()) {
-            return new Version(m.group(1));
+            return Version(m.group(1))
         }
 
-        throw new CommandFailedException("Unexpcted output of ddev version command: " + versionString);
+        throw CommandFailedException("Unexpected output of ddev version command: $versionString")
     }
 
-    public @NotNull Versions detailedVersions(final @NotNull String binary, final @NotNull Project project) throws CommandFailedException {
-        return execute(binary, "version", Versions.class, project);
+    @Throws(CommandFailedException::class)
+    override fun detailedVersions(binary: String, project: Project): Versions {
+        return execute<Versions>(binary, "version", Versions::class.java, project)
     }
 
-    public @NotNull Description describe(final @NotNull String binary, final @NotNull Project project) throws CommandFailedException {
-        return execute(binary, "describe", Description.class, project);
+    @Throws(CommandFailedException::class)
+    override fun describe(binary: String, project: Project): Description {
+        return execute<Description>(binary, "describe", Description::class.java, project)
     }
 
-    private @NotNull String executePlain(final @NotNull String binary, final @NotNull String action, final @NotNull Project project) throws CommandFailedException {
-        final GeneralCommandLine commandLine = createDdevCommandLine(binary, action, project, false);
+    @Throws(CommandFailedException::class)
+    private fun executePlain(binary: String, action: String, project: Project): String {
+        val commandLine = createDdevCommandLine(binary, action, project, false)
 
         try {
-            final ProcessOutput processOutput = ProcessExecutor.getInstance().executeCommandLine(commandLine, COMMAND_TIMEOUT, false);
+            val processOutput = ProcessExecutor.getInstance()?.executeCommandLine(commandLine, COMMAND_TIMEOUT, false)
 
-            if (processOutput.isTimeout()) {
-                throw new CommandFailedException("Command timed out after " + (COMMAND_TIMEOUT / 1000) + " seconds: " + commandLine.getCommandLineString() + " in " + commandLine.getWorkDirectory().getPath());
+            if (processOutput?.isTimeout == true) {
+                throw CommandFailedException(
+                    "Command timed out after " + (COMMAND_TIMEOUT / 1000) + " seconds: " + commandLine.commandLineString + " in " + commandLine.workDirectory
+                        .path
+                )
             }
 
-            if (processOutput.getExitCode() != 0) {
-                throw new CommandFailedException("Command '" + commandLine.getCommandLineString() + "' returned non zero exit code " + processOutput);
+            if (processOutput?.exitCode != 0) {
+                throw CommandFailedException("Command '" + commandLine.commandLineString + "' returned non zero exit code " + processOutput)
             }
 
-            return processOutput.getStdout();
-        } catch (ExecutionException exception) {
-            throw new CommandFailedException("Failed to execute " + commandLine.getCommandLineString(), exception);
+            return processOutput.stdout
+        } catch (exception: ExecutionException) {
+            throw CommandFailedException("Failed to execute " + commandLine.commandLineString, exception)
         }
     }
 
-    private @NotNull <T> T execute(final @NotNull String binary, final @NotNull String action, final @NotNull Type type, final @NotNull Project project) throws CommandFailedException {
-        final GeneralCommandLine commandLine = createDdevCommandLine(binary, action, project);
+    @Throws(CommandFailedException::class)
+    private fun <T> execute(binary: String, action: String, type: Type, project: Project): T {
+        val commandLine = createDdevCommandLine(binary, action, project)
 
-        ProcessOutput processOutput = null;
+        var processOutput: ProcessOutput? = null
         try {
-            processOutput = ProcessExecutor.getInstance().executeCommandLine(commandLine, COMMAND_TIMEOUT, false);
+            processOutput = ProcessExecutor.getInstance()?.executeCommandLine(commandLine, COMMAND_TIMEOUT, false)
 
-            if (processOutput.isTimeout()) {
-                throw new CommandFailedException("Command timed out after " + (COMMAND_TIMEOUT / 1000) + " seconds: " + commandLine.getCommandLineString() + " in " + commandLine.getWorkDirectory().getPath());
+            if (processOutput?.isTimeout == true) {
+                throw CommandFailedException(
+                    "Command timed out after " + (COMMAND_TIMEOUT / 1000) + " seconds: " + commandLine.commandLineString + " in " + commandLine.workDirectory
+                        .path
+                )
             }
 
-            if (processOutput.getExitCode() != 0) {
-                throw new CommandFailedException("Command '" + commandLine.getCommandLineString() + "' returned non zero exit code " + processOutput);
+            if (processOutput?.exitCode != 0) {
+                throw CommandFailedException("Command '" + commandLine.commandLineString + "' returned non zero exit code " + processOutput)
             }
 
-            return JsonParser.getInstance().parse(processOutput.getStdout(), type);
-        } catch (ExecutionException exception) {
-            throw new CommandFailedException("Failed to execute " + commandLine.getCommandLineString(), exception);
-        } catch (JsonParserException exception) {
-            throw new CommandFailedException("Failed to parse output of command '" + commandLine.getCommandLineString() + "': " + processOutput.getStdout(), exception);
+            return getInstance().parse<T>(processOutput.stdout, type)
+        } catch (exception: ExecutionException) {
+            throw CommandFailedException("Failed to execute " + commandLine.commandLineString, exception)
+        } catch (exception: JsonParserException) {
+            throw CommandFailedException(
+                "Failed to parse output of command '" + commandLine.commandLineString + "': " + processOutput!!.stdout,
+                exception
+            )
         }
     }
 
-    private @NotNull GeneralCommandLine createDdevCommandLine(final @NotNull String binary, final @NotNull String action, final @NotNull Project project) {
-        return this.createDdevCommandLine(binary, action, project, true);
-    }
-
-    private @NotNull GeneralCommandLine createDdevCommandLine(final @NotNull String binary, final @NotNull String action, final @NotNull Project project, boolean json) {
-        final ArrayList<String> arguments = Lists.newArrayList();
-        arguments.add(binary);
-        arguments.add(action);
+    private fun createDdevCommandLine(
+        binary: String,
+        action: String,
+        project: Project,
+        json: Boolean = true
+    ): GeneralCommandLine {
+        val arguments = Lists.newArrayList<String?>()
+        arguments.add(binary)
+        arguments.add(action)
 
         if (json) {
-            arguments.add("--json-output");
+            arguments.add("--json-output")
         }
 
-        return new GeneralCommandLine(arguments)
-                .withWorkDirectory(project.getBasePath())
-                .withEnvironment("DDEV_NONINTERACTIVE", "true");
+        return GeneralCommandLine(arguments)
+            .withWorkDirectory(project.basePath)
+            .withEnvironment("DDEV_NONINTERACTIVE", "true")
+    }
+
+    companion object {
+        private const val COMMAND_TIMEOUT = 8000
     }
 }

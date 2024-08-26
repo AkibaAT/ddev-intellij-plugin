@@ -1,19 +1,18 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.version.Version;
-import org.jetbrains.annotations.Nullable;
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.version.Version
 
-public interface State {
-    boolean isBinaryConfigured();
+interface State {
+    fun isBinaryConfigured(): Boolean
 
-    boolean isAvailable();
+    fun isAvailable(): Boolean
 
-    boolean isConfigured();
+    fun isConfigured(): Boolean
 
-    @Nullable Version getDdevVersion();
+    fun getDdevVersion(): Version?
 
-    @Nullable Description getDescription();
+    fun getDescription(): Description?
 
-    @Nullable String getDdevBinary();
+    fun getDdevBinary(): String?
 }

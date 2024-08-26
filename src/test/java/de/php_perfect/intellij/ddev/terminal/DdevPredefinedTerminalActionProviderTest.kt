@@ -1,30 +1,30 @@
-package de.php_perfect.intellij.ddev.terminal;
+package de.php_perfect.intellij.ddev.terminal
 
-import com.intellij.openapi.project.Project;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.lang.Exception
 
-final class DdevPredefinedTerminalActionProviderTest extends BasePlatformTestCase {
-    @Override
+internal class DdevPredefinedTerminalActionProviderTest : BasePlatformTestCase() {
     @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Throws(Exception::class)
+    override fun setUp() {
+        super.setUp()
     }
 
-    @Override
     @AfterEach
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @Throws(Exception::class)
+    override fun tearDown() {
+        super.tearDown()
     }
 
     @Test
-    void listOpenPredefinedTerminalActions() {
-        Project project = getProject();
-        DdevPredefinedTerminalActionProvider ddevPredefinedTerminalActionProvider = new DdevPredefinedTerminalActionProvider();
+    fun listOpenPredefinedTerminalActions() {
+        val project = getProject()
+        val ddevPredefinedTerminalActionProvider = DdevPredefinedTerminalActionProvider()
 
-        Assertions.assertTrue(ddevPredefinedTerminalActionProvider.listOpenPredefinedTerminalActions(project).isEmpty());
+        Assertions.assertTrue(ddevPredefinedTerminalActionProvider.listOpenPredefinedTerminalActions(project).isEmpty())
     }
 }

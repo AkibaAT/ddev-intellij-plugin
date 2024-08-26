@@ -1,33 +1,28 @@
-package de.php_perfect.intellij.ddev.statusBar;
+package de.php_perfect.intellij.ddev.statusBar
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
-import com.intellij.openapi.wm.impl.status.widget.StatusBarEditorBasedWidgetFactory;
-import de.php_perfect.intellij.ddev.DdevIntegrationBundle;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.StatusBar
+import com.intellij.openapi.wm.StatusBarWidget
+import com.intellij.openapi.wm.impl.status.widget.StatusBarEditorBasedWidgetFactory
+import de.php_perfect.intellij.ddev.DdevIntegrationBundle
+import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.NonNls
 
-public final class DdevStatusBarWidgetFactoryImpl extends StatusBarEditorBasedWidgetFactory {
-    @Override
-    public @NonNls @NotNull String getId() {
-        return DdevStatusBarWidgetImpl.WIDGET_ID;
+class DdevStatusBarWidgetFactoryImpl : StatusBarEditorBasedWidgetFactory() {
+    override fun getId(): @NonNls String {
+        return DdevStatusBarWidgetImpl.Companion.WIDGET_ID
     }
 
-    @Override
-    public @Nls @NotNull String getDisplayName() {
-        return DdevIntegrationBundle.message("statusBar.displayName");
+    override fun getDisplayName(): @Nls String {
+        return DdevIntegrationBundle.message("statusBar.displayName")
     }
 
-    @Override
-    public boolean canBeEnabledOn(@NotNull StatusBar statusBar) {
-        Project project = statusBar.getProject();
-        return project != null;
+    override fun canBeEnabledOn(statusBar: StatusBar): Boolean {
+        val project = statusBar.project
+        return project != null
     }
 
-    @Override
-    public @NotNull StatusBarWidget createWidget(@NotNull Project project) {
-        return new DdevStatusBarWidgetImpl(project);
+    override fun createWidget(project: Project): StatusBarWidget {
+        return DdevStatusBarWidgetImpl(project)
     }
 }

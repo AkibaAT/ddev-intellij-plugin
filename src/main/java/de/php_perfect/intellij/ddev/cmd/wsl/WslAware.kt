@@ -1,39 +1,39 @@
-package de.php_perfect.intellij.ddev.cmd.wsl;
+package de.php_perfect.intellij.ddev.cmd.wsl
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.wsl.WSLCommandLineOptions;
-import com.intellij.execution.wsl.WSLDistribution;
-import com.intellij.execution.wsl.WslPath;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.execution.ExecutionException
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.wsl.WSLCommandLineOptions
+import com.intellij.execution.wsl.WSLDistribution
 
-public class WslAware {
-    private WslAware() {
+object WslAware {
+    fun <T : GeneralCommandLine?> patchCommandLine(commandLine: T?): T? {
+        return patchCommandLine<T?>(commandLine, false)
     }
 
-    public static <T extends GeneralCommandLine> T patchCommandLine(T commandLine) {
-        return patchCommandLine(commandLine, false);
-    }
-
-    public static <T extends GeneralCommandLine> T patchCommandLine(T commandLine, boolean loginShell) {
-        WSLDistribution distribution = WslPath.getDistributionByWindowsUncPath(commandLine.getWorkDirectory().getPath());
+    fun <T : GeneralCommandLine?> patchCommandLine(commandLine: T?, loginShell: Boolean): T? {
+        val distribution: WSLDistribution? =
+            getDistributionByWindowsUncPath.getDistributionByWindowsUncPath(commandLine!!.getWorkDirectory().getPath())
 
         if (distribution == null) {
-            return commandLine;
+            return commandLine
         }
 
         try {
-            return applyWslPatch(commandLine, distribution, loginShell);
-        } catch (ExecutionException ignored) {
-            return commandLine;
+            return applyWslPatch<T?>(commandLine, distribution, loginShell)
+        } catch (ignored: ExecutionException) {
+            return commandLine
         }
     }
 
-    @NotNull
-    private static <T extends GeneralCommandLine> T applyWslPatch(T generalCommandLine, WSLDistribution distribution, boolean loginShell) throws ExecutionException {
-        WSLCommandLineOptions options = new WSLCommandLineOptions()
-                .setExecuteCommandInLoginShell(loginShell);
+    @Throws(ExecutionException::class)
+    private fun <T : GeneralCommandLine?> applyWslPatch(
+        generalCommandLine: T?,
+        distribution: WSLDistribution,
+        loginShell: Boolean
+    ): T {
+        val options = WSLCommandLineOptions()
+            .setExecuteCommandInLoginShell(loginShell)
 
-        return distribution.patchCommandLine(generalCommandLine, null, options);
+        return distribution.patchCommandLine<T?>(generalCommandLine, null, options)
     }
 }

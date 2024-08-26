@@ -1,61 +1,62 @@
-package de.php_perfect.intellij.ddev.terminal;
+package de.php_perfect.intellij.ddev.terminal
 
-import com.intellij.openapi.project.Project;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import de.php_perfect.intellij.ddev.state.DdevConfigLoader;
-import de.php_perfect.intellij.ddev.state.DdevStateManager;
-import de.php_perfect.intellij.ddev.state.MockDdevConfigLoader;
-import de.php_perfect.intellij.ddev.state.State;
-import org.jetbrains.plugins.terminal.ShellStartupOptions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import de.php_perfect.intellij.ddev.state.DdevConfigLoader
+import de.php_perfect.intellij.ddev.state.DdevStateManager
+import de.php_perfect.intellij.ddev.state.MockDdevConfigLoader
+import org.jetbrains.plugins.terminal.ShellStartupOptions.Builder.build
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.function.Executable
+import java.lang.Exception
+import java.util.Map
+import java.util.concurrent.ExecutionException
 
-import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-final class DdevTerminalRunnerTest extends BasePlatformTestCase {
-    @Override
+internal class DdevTerminalRunnerTest : BasePlatformTestCase() {
     @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Throws(Exception::class)
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test
-    void createProcessNotExistentDdev() throws NoSuchFieldException, IllegalAccessException {
-        Project project = getProject();
-        DdevTerminalRunner ddevTerminalRunner = new DdevTerminalRunner(project);
+    @Throws(NoSuchFieldException::class, IllegalAccessException::class)
+    fun createProcessNotExistentDdev() {
+        val project = getProject()
+        val ddevTerminalRunner = DdevTerminalRunner(project)
 
-        State state = DdevStateManager.getInstance(project).getState();
+        val state = DdevStateManager.getInstance(project)!!.getState()
 
-        Field field = state.getClass().getDeclaredField("ddevBinary");
-        field.setAccessible(true);
-        field.set(state, null);
+        val field = state.javaClass.getDeclaredField("ddevBinary")
+        field.setAccessible(true)
+        field.set(state, null)
 
-        final Map<String, String> envVariables = Map.of();
-        final ShellStartupOptions.Builder builder = new ShellStartupOptions.Builder(project.getBasePath(), null, null, null, null, null, envVariables);
+        val envVariables = Map.of<String?, String?>()
+        val builder: Builder = Builder(project.getBasePath(), null, null, null, null, null, envVariables)
 
-        Assertions.assertThrowsExactly(ExecutionException.class, () -> ddevTerminalRunner.createProcess(builder.build()));
+        Assertions.assertThrowsExactly<ExecutionException?>(
+            ExecutionException::class.java,
+            Executable { ddevTerminalRunner.createProcess(builder.build()) })
     }
 
     @Test
-    void terminalIsNotPersistent() {
-        Project project = getProject();
-        DdevTerminalRunner ddevTerminalRunner = new DdevTerminalRunner(project);
+    fun terminalIsNotPersistent() {
+        val project = getProject()
+        val ddevTerminalRunner = DdevTerminalRunner(project)
 
-        Assertions.assertFalse(ddevTerminalRunner.isTerminalSessionPersistent());
+        Assertions.assertFalse(ddevTerminalRunner.isTerminalSessionPersistent())
     }
 
-    @Override
     @AfterEach
-    protected void tearDown() throws Exception {
-        final MockDdevConfigLoader ddevConfigLoader = (MockDdevConfigLoader) DdevConfigLoader.getInstance(this.getProject());
-        ddevConfigLoader.setExists(false);
+    @Throws(Exception::class)
+    override fun tearDown() {
+        val ddevConfigLoader = DdevConfigLoader.getInstance(this.getProject()) as MockDdevConfigLoader?
+        ddevConfigLoader!!.setExists(false)
 
-        DdevStateManager.getInstance(this.getProject()).resetState();
+        DdevStateManager.getInstance(this.getProject())!!.resetState()
 
-        super.tearDown();
+        super.tearDown()
     }
 }

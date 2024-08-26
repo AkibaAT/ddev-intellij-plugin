@@ -1,10 +1,7 @@
-package de.php_perfect.intellij.ddev;
+package de.php_perfect.intellij.ddev
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
 
-import java.util.List;
-
-public interface DdevConfigArgumentProvider {
-    @NotNull List<@NotNull String> getAdditionalArguments(@NotNull Project project);
+interface DdevConfigArgumentProvider {
+    fun getAdditionalArguments(project: Project): MutableList<String>
 }

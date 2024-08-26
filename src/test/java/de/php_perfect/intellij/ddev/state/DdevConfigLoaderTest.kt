@@ -1,81 +1,78 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.io.File
+import java.io.IOException
+import java.lang.Exception
+import java.nio.file.Files
+import java.util.ArrayList
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
+internal class DdevConfigLoaderTest : BasePlatformTestCase() {
+    private val files: MutableList<File> = ArrayList<File>()
 
-final class DdevConfigLoaderTest extends BasePlatformTestCase {
-    private final @NotNull List<File> files = new ArrayList<>();
-
-    @Override
     @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Throws(Exception::class)
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test
-    void nonExistentConfig() {
-        Assertions.assertFalse(new DdevConfigLoaderImpl(this.getProject()).exists());
+    fun nonExistentConfig() {
+        Assertions.assertFalse(DdevConfigLoaderImpl(this.getProject()).exists())
     }
 
     @Test
-    void existentConfig() {
-        Project project = this.getProject();
+    fun existentConfig() {
+        val project = this.getProject()
 
-        File ddevConfig = new File(project.getBasePath() + "/.ddev/config.yaml");
-        this.files.add(ddevConfig);
-        ddevConfig.deleteOnExit();
+        val ddevConfig = File(project.getBasePath() + "/.ddev/config.yaml")
+        this.files.add(ddevConfig)
+        ddevConfig.deleteOnExit()
 
         try {
-            FileUtil.writeToFile(ddevConfig, "name: test", true);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            FileUtil.writeToFile(ddevConfig, "name: test", true)
+        } catch (ex: IOException) {
+            ex.printStackTrace()
         }
 
-        Assertions.assertTrue(new DdevConfigLoaderImpl(project).exists());
+        Assertions.assertTrue(DdevConfigLoaderImpl(project).exists())
     }
 
     @Test
-    void loadNonExisting() {
-        Assertions.assertNull(new DdevConfigLoaderImpl(this.getProject()).load());
+    fun loadNonExisting() {
+        Assertions.assertNull(DdevConfigLoaderImpl(this.getProject()).load())
     }
 
     @Test
-    void loadExisting() {
-        Project project = this.getProject();
+    fun loadExisting() {
+        val project = this.getProject()
 
-        File ddevConfig = new File(project.getBasePath() + "/.ddev/config.yaml");
-        this.files.add(ddevConfig);
-        ddevConfig.deleteOnExit();
+        val ddevConfig = File(project.getBasePath() + "/.ddev/config.yaml")
+        this.files.add(ddevConfig)
+        ddevConfig.deleteOnExit()
 
         try {
-            FileUtil.writeToFile(ddevConfig, "name: test", true);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            FileUtil.writeToFile(ddevConfig, "name: test", true)
+        } catch (ex: IOException) {
+            ex.printStackTrace()
         }
 
-        Assertions.assertInstanceOf(VirtualFile.class, new DdevConfigLoaderImpl(project).load());
+        Assertions.assertInstanceOf<VirtualFile?>(VirtualFile::class.java, DdevConfigLoaderImpl(project).load())
     }
 
-    @Override
     @AfterEach
-    protected void tearDown() throws Exception {
-        for (File file : this.files) {
-            Files.deleteIfExists(file.toPath());
+    @Throws(Exception::class)
+    override fun tearDown() {
+        for (file in this.files) {
+            Files.deleteIfExists(file.toPath())
         }
 
-        super.tearDown();
+        super.tearDown()
     }
 }

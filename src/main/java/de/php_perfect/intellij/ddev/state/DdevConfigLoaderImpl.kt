@@ -1,47 +1,44 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
+import java.nio.file.Paths
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+class DdevConfigLoaderImpl(project: Project) : DdevConfigLoader {
+    private val project: Project
 
-public final class DdevConfigLoaderImpl implements DdevConfigLoader {
-    private static final @NotNull String DDEV_CONFIG_PATH = ".ddev/config.yaml";
-    private final @NotNull Project project;
-
-    public DdevConfigLoaderImpl(@NotNull Project project) {
-        this.project = project;
+    init {
+        this.project = project
     }
 
-    @Override
-    public @Nullable VirtualFile load() {
-        final String basePath = this.project.getBasePath();
+    override fun load(): VirtualFile? {
+        val basePath = this.project.getBasePath()
 
         if (basePath == null) {
-            return null;
+            return null
         }
 
-        final Path path = Paths.get(basePath, DDEV_CONFIG_PATH);
+        val path = Paths.get(basePath, DdevConfigLoaderImpl.Companion.DDEV_CONFIG_PATH)
 
-        VirtualFile config = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(path);
+        val config = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(path)
 
         if (config == null) {
-            return null;
+            return null
         }
 
-        config.refresh(false, false);
+        config.refresh(false, false)
 
-        return config;
+        return config
     }
 
-    @Override
-    public boolean exists() {
-        final VirtualFile ddevConfig = this.load();
+    override fun exists(): Boolean {
+        val ddevConfig = this.load()
 
-        return ddevConfig != null && ddevConfig.exists();
+        return ddevConfig != null && ddevConfig.exists()
+    }
+
+    companion object {
+        private const val DDEV_CONFIG_PATH = ".ddev/config.yaml"
     }
 }

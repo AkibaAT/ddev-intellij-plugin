@@ -1,24 +1,26 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.TestOnly;
+import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.TestOnly
 
-public interface DdevStateManager {
-    @NotNull State getState();
+interface DdevStateManager {
+    fun getState(): State
 
-    void initialize();
+    fun initialize()
 
-    void reinitialize();
+    fun reinitialize()
 
-    void updateConfiguration();
+    fun updateConfiguration()
 
-    void updateDescription();
+    fun updateDescription()
 
     @TestOnly
-    void resetState();
+    fun resetState()
 
-    static DdevStateManager getInstance(@NotNull Project project) {
-        return project.getService(DdevStateManager.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): DdevStateManager {
+            return project.getService<DdevStateManager>(DdevStateManager::class.java)
+        }
     }
 }

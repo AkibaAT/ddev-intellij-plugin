@@ -1,16 +1,17 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
 
-public interface StateWatcher {
-    void startWatching();
+interface StateWatcher {
+    fun startWatching()
 
-    void stopWatching();
+    fun stopWatching()
 
-    boolean isWatching();
+    fun isWatching(): Boolean
 
-    static StateWatcher getInstance(@NotNull Project project) {
-        return project.getService(StateWatcher.class);
+    companion object {
+        fun getInstance(project: Project): StateWatcher? {
+            return project.getService<StateWatcher?>(StateWatcher::class.java)
+        }
     }
 }

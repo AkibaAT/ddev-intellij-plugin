@@ -1,18 +1,16 @@
-package de.php_perfect.intellij.ddev.actions;
+package de.php_perfect.intellij.ddev.actions
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAware;
-import de.php_perfect.intellij.ddev.version.VersionChecker;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.DumbAware
+import de.php_perfect.intellij.ddev.version.VersionChecker
 
-public final class CheckVersionAction extends AnAction implements DumbAware {
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
+class CheckVersionAction : AnAction(), DumbAware {
+    override fun actionPerformed(e: AnActionEvent) {
         if (e.getProject() == null) {
-            return;
+            return
         }
 
-        VersionChecker.getInstance(e.getProject()).checkDdevVersion(true);
+        VersionChecker.getInstance(e.getProject()!!).checkDdevVersion(true)
     }
 }

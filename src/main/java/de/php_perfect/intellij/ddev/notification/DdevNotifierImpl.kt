@@ -1,137 +1,157 @@
-package de.php_perfect.intellij.ddev.notification;
+package de.php_perfect.intellij.ddev.notification
 
-import com.intellij.notification.NotificationGroupManager;
-import com.intellij.notification.NotificationType;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.DdevIntegrationBundle;
-import de.php_perfect.intellij.ddev.actions.*;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.DdevIntegrationBundle
+import de.php_perfect.intellij.ddev.actions.ChangeSettingsAction
+import de.php_perfect.intellij.ddev.actions.DisableCheckForUpdatesAction
+import de.php_perfect.intellij.ddev.actions.InstallationInstructionsAction
+import de.php_perfect.intellij.ddev.actions.ManagePluginsAction
+import de.php_perfect.intellij.ddev.actions.ReloadPluginAction
+import de.php_perfect.intellij.ddev.actions.ReportIssueAction
 
-public final class DdevNotifierImpl implements DdevNotifier {
-    public static final String STICKY = "DdevIntegration.Sticky";
-    public static final String NON_STICKY = "DdevIntegration.NonSticky";
-    private final @NotNull Project project;
+class DdevNotifierImpl(project: Project) : DdevNotifier {
+    private val project: Project
 
-    public DdevNotifierImpl(final @NotNull Project project) {
-        this.project = project;
+    init {
+        this.project = project
     }
 
-    @Override
-    public void notifyInstallDdev() {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyInstallDdev() {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.InstallDdev.title"),
-                        DdevIntegrationBundle.message("notification.InstallDdev.text"),
-                        NotificationType.INFORMATION
+                    DdevIntegrationBundle.message("notification.InstallDdev.title"),
+                    DdevIntegrationBundle.message("notification.InstallDdev.text"),
+                    NotificationType.INFORMATION
                 )
-                .addAction(new InstallationInstructionsAction())
-                .notify(this.project), ModalityState.nonModal());
+                .addAction(InstallationInstructionsAction())
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyNewVersionAvailable(final @NotNull String currentVersion, final @NotNull String latestVersion) {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyNewVersionAvailable(currentVersion: String, latestVersion: String) {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(NON_STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.NewVersionAvailable.title"),
-                        DdevIntegrationBundle.message("notification.NewVersionAvailable.text", currentVersion, latestVersion),
-                        NotificationType.INFORMATION
+                    DdevIntegrationBundle.message("notification.NewVersionAvailable.title"),
+                    DdevIntegrationBundle.message(
+                        "notification.NewVersionAvailable.text",
+                        currentVersion,
+                        latestVersion
+                    ),
+                    NotificationType.INFORMATION
                 )
-                .addAction(new InstallationInstructionsAction())
-                .addAction(new DisableCheckForUpdatesAction())
-                .notify(this.project), ModalityState.nonModal());
+                .addAction(InstallationInstructionsAction())
+                .addAction(DisableCheckForUpdatesAction())
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyAlreadyLatestVersion() {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyAlreadyLatestVersion() {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(NON_STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.AlreadyLatestVersion.text"),
-                        NotificationType.INFORMATION
+                    DdevIntegrationBundle.message("notification.AlreadyLatestVersion.text"),
+                    NotificationType.INFORMATION
                 )
-                .notify(this.project), ModalityState.nonModal());
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyMissingPlugin(final @NotNull String pluginName) {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyMissingPlugin(pluginName: String) {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.MissingPlugin.title"),
-                        DdevIntegrationBundle.message("notification.MissingPlugin.text", pluginName),
-                        NotificationType.WARNING
+                    DdevIntegrationBundle.message("notification.MissingPlugin.title"),
+                    DdevIntegrationBundle.message("notification.MissingPlugin.text", pluginName),
+                    NotificationType.WARNING
                 )
-                .addAction(new ManagePluginsAction())
-                .notify(this.project), ModalityState.nonModal());
+                .addAction(ManagePluginsAction())
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyPhpInterpreterUpdated(final @NotNull String phpVersion) {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyPhpInterpreterUpdated(phpVersion: String) {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(NON_STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.InterpreterUpdated.title"),
-                        DdevIntegrationBundle.message("notification.InterpreterUpdated.text", phpVersion),
-                        NotificationType.INFORMATION
+                    DdevIntegrationBundle.message("notification.InterpreterUpdated.title"),
+                    DdevIntegrationBundle.message("notification.InterpreterUpdated.text", phpVersion),
+                    NotificationType.INFORMATION
                 )
-                .notify(this.project), ModalityState.nonModal());
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyUnknownStateEntered() {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyUnknownStateEntered() {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.UnknownStateEntered.title"),
-                        DdevIntegrationBundle.message("notification.UnknownStateEntered.text"),
-                        NotificationType.WARNING
+                    DdevIntegrationBundle.message("notification.UnknownStateEntered.title"),
+                    DdevIntegrationBundle.message("notification.UnknownStateEntered.text"),
+                    NotificationType.WARNING
                 )
                 .addAction(ActionManager.getInstance().getAction("DdevIntegration.SyncState"))
-                .addAction(new ReportIssueAction())
-                .notify(this.project), ModalityState.nonModal());
+                .addAction(ReportIssueAction())
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyErrorReportSent(final @NotNull String reportId) {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyErrorReportSent(reportId: String) {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(NON_STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("errorReporting.success.title"),
-                        DdevIntegrationBundle.message("errorReporting.success.text", reportId),
-                        NotificationType.INFORMATION
+                    DdevIntegrationBundle.message("errorReporting.success.title"),
+                    DdevIntegrationBundle.message("errorReporting.success.text", reportId),
+                    NotificationType.INFORMATION
                 )
-                .addAction(new ReportIssueAction())
-                .notify(this.project), ModalityState.nonModal());
+                .addAction(ReportIssueAction())
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyDdevDetected(final @NotNull String binary) {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyDdevDetected(binary: String) {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(NON_STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.ddevDetected.title"),
-                        DdevIntegrationBundle.message("notification.ddevDetected.text", binary),
-                        NotificationType.INFORMATION
+                    DdevIntegrationBundle.message("notification.ddevDetected.title"),
+                    DdevIntegrationBundle.message("notification.ddevDetected.text", binary),
+                    NotificationType.INFORMATION
                 )
-                .addAction(new ChangeSettingsAction())
-                .notify(this.project), ModalityState.nonModal());
+                .addAction(ChangeSettingsAction())
+                .notify(this.project)
+        }, ModalityState.nonModal())
     }
 
-    @Override
-    public void notifyDockerNotAvailable(final @NotNull String context) {
-        ApplicationManager.getApplication().invokeLater(() -> NotificationGroupManager.getInstance()
+    override fun notifyDockerNotAvailable(context: String) {
+        ApplicationManager.getApplication().invokeLater(Runnable {
+            NotificationGroupManager.getInstance()
                 .getNotificationGroup(STICKY)
                 .createNotification(
-                        DdevIntegrationBundle.message("notification.dockerNotAvailable.title"),
-                        DdevIntegrationBundle.message("notification.dockerNotAvailable.text", context),
-                        NotificationType.WARNING
+                    DdevIntegrationBundle.message("notification.dockerNotAvailable.title"),
+                    DdevIntegrationBundle.message("notification.dockerNotAvailable.text", context),
+                    NotificationType.WARNING
                 )
-                .addAction(new ReloadPluginAction())
-                .notify(this.project), ModalityState.nonModal());
+                .addAction(ReloadPluginAction())
+                .notify(this.project)
+        }, ModalityState.nonModal())
+    }
+
+    companion object {
+        const val STICKY: String = "DdevIntegration.Sticky"
+        const val NON_STICKY: String = "DdevIntegration.NonSticky"
     }
 }

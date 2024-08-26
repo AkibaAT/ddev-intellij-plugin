@@ -1,24 +1,25 @@
-package de.php_perfect.intellij.ddev.index;
+package de.php_perfect.intellij.ddev.index
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.NonNls
 
-public interface ManagedConfigurationIndex {
-    static ManagedConfigurationIndex getInstance(@NotNull Project project) {
-        return project.getService(ManagedConfigurationIndex.class);
+interface ManagedConfigurationIndex {
+    fun set(id: @NonNls String, type: Class<out IndexableConfiguration?>, hash: Int)
+
+    fun get(type: Class<out IndexableConfiguration?>): IndexEntry?
+
+    fun remove(type: Class<out IndexableConfiguration?>)
+
+    fun isManaged(id: @NonNls String, type: Class<out IndexableConfiguration?>): Boolean
+
+    fun isUpToDate(type: Class<out IndexableConfiguration?>, hash: Int): Boolean
+
+    fun purge()
+
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): ManagedConfigurationIndex? {
+            return project.getService<ManagedConfigurationIndex?>(ManagedConfigurationIndex::class.java)
+        }
     }
-
-    void set(@NonNls @NotNull String id, @NotNull Class<? extends IndexableConfiguration> type, int hash);
-
-    @Nullable IndexEntry get(@NotNull Class<? extends IndexableConfiguration> type);
-
-    void remove(@NotNull Class<? extends IndexableConfiguration> type);
-
-    boolean isManaged(@NonNls @NotNull String id, @NotNull Class<? extends IndexableConfiguration> type);
-
-    boolean isUpToDate(@NotNull Class<? extends IndexableConfiguration> type, int hash);
-
-    void purge();
 }

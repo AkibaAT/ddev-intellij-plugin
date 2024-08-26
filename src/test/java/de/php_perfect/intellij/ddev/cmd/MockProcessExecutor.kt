@@ -1,41 +1,38 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.ProcessOutput;
-import com.intellij.openapi.util.SystemInfo;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.execution.ExecutionException
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.ProcessOutput
+import com.intellij.openapi.util.SystemInfo
+import java.util.HashMap
 
-import java.util.HashMap;
-import java.util.Map;
+class MockProcessExecutor : ProcessExecutor {
+    private val processList: MutableMap<String?, ProcessOutput> = HashMap<String?, ProcessOutput>()
 
-public final class MockProcessExecutor implements ProcessExecutor {
-    private final Map<String, ProcessOutput> processList = new HashMap<>();
-
-    public MockProcessExecutor() {
-        this.addProcessOutput("docker info", new ProcessOutput(0));
+    init {
+        this.addProcessOutput("docker info", ProcessOutput(0))
 
         if (SystemInfo.isWindows) {
-            this.addProcessOutput("where ddev", new ProcessOutput(1));
+            this.addProcessOutput("where ddev", ProcessOutput(1))
         } else {
-            this.addProcessOutput("which ddev", new ProcessOutput(1));
+            this.addProcessOutput("which ddev", ProcessOutput(1))
         }
     }
 
-    public void addProcessOutput(@NotNull String command, @NotNull ProcessOutput processOutput) {
-        this.processList.put(command, processOutput);
+    fun addProcessOutput(command: String, processOutput: ProcessOutput) {
+        this.processList.put(command, processOutput)
     }
 
-    @Override
-    public @NotNull ProcessOutput executeCommandLine(GeneralCommandLine commandLine, int timeout, boolean loginShell) throws ExecutionException {
-        String commandLineString = commandLine.getCommandLineString();
+    @Throws(ExecutionException::class)
+    override fun executeCommandLine(commandLine: GeneralCommandLine, timeout: Int, loginShell: Boolean): ProcessOutput {
+        val commandLineString = commandLine.getCommandLineString()
 
         if (!this.processList.containsKey(commandLineString)) {
-            throw new ExecutionException(String.format("[TEST] Command '%s' was not expected", commandLineString));
+            throw ExecutionException(String.format("[TEST] Command '%s' was not expected", commandLineString))
         }
 
-        ProcessOutput processOutput = this.processList.get(commandLineString);
-        this.processList.remove(commandLineString);
-        return processOutput;
+        val processOutput: ProcessOutput = this.processList.get(commandLineString)!!
+        this.processList.remove(commandLineString)
+        return processOutput
     }
 }

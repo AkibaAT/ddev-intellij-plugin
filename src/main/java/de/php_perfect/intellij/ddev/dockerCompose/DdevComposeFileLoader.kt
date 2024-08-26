@@ -1,14 +1,15 @@
-package de.php_perfect.intellij.ddev.dockerCompose;
+package de.php_perfect.intellij.ddev.dockerCompose
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 
-public interface DdevComposeFileLoader {
-    @Nullable VirtualFile load();
+interface DdevComposeFileLoader {
+    fun load(): VirtualFile?
 
-    static DdevComposeFileLoader getInstance(@NotNull Project project) {
-        return project.getService(DdevComposeFileLoader.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): DdevComposeFileLoader? {
+            return project.getService<DdevComposeFileLoader?>(DdevComposeFileLoader::class.java)
+        }
     }
 }

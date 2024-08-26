@@ -1,25 +1,19 @@
-package de.php_perfect.intellij.ddev.actions;
+package de.php_perfect.intellij.ddev.actions
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.DdevIntegrationBundle;
-import de.php_perfect.intellij.ddev.settings.DdevSettingsState;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.DumbAwareAction
+import de.php_perfect.intellij.ddev.DdevIntegrationBundle
+import de.php_perfect.intellij.ddev.settings.DdevSettingsState
 
-public final class DisableCheckForUpdatesAction extends DumbAwareAction {
-    public DisableCheckForUpdatesAction() {
-        super(DdevIntegrationBundle.messagePointer("actions.disableCheckForUpdates"));
-    }
-
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        final Project project = e.getProject();
+class DisableCheckForUpdatesAction :
+    DumbAwareAction(DdevIntegrationBundle.messagePointer("actions.disableCheckForUpdates")) {
+    override fun actionPerformed(e: AnActionEvent) {
+        val project = e.getProject()
 
         if (project == null) {
-            return;
+            return
         }
 
-        DdevSettingsState.getInstance(project).checkForUpdates = false;
+        DdevSettingsState.getInstance(project).checkForUpdates = false
     }
 }

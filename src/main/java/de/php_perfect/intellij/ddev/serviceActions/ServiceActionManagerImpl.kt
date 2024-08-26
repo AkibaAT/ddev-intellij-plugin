@@ -1,123 +1,135 @@
-package de.php_perfect.intellij.ddev.serviceActions;
+package de.php_perfect.intellij.ddev.serviceActions
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.serviceContainer.NonInjectable;
-import de.php_perfect.intellij.ddev.DdevIntegrationBundle;
-import de.php_perfect.intellij.ddev.actions.OpenServiceAction;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.cmd.Service;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.TestOnly;
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.serviceContainer.NonInjectable
+import de.php_perfect.intellij.ddev.DdevIntegrationBundle
+import de.php_perfect.intellij.ddev.actions.OpenServiceAction
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.cmd.Service
+import org.jetbrains.annotations.TestOnly
+import java.net.MalformedURLException
+import java.net.URI
+import java.net.URISyntaxException
+import java.net.URL
+import java.util.AbstractMap
+import java.util.Map
+import java.util.Optional
+import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Function
+import java.util.logging.Level
+import java.util.logging.Logger
+import java.util.stream.Collectors
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URISyntaxException;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+class ServiceActionManagerImpl @NonInjectable @TestOnly constructor(existingActionsMap: MutableMap<String, AnAction>) :
+    ServiceActionManager, Disposable {
+    private val actionMap: MutableMap<String, AnAction> = existingActionsMap
 
-public final class ServiceActionManagerImpl implements ServiceActionManager, Disposable {
-    private static final @NotNull Logger LOGGER = Logger.getLogger(ServiceActionManagerImpl.class.getName(),
-            DdevIntegrationBundle.getName());
-    private static final @NotNull String ACTION_PREFIX = "DdevIntegration.Services.";
+    constructor() : this(ConcurrentHashMap<String, AnAction>())
 
-    private final @NotNull Map<@NotNull String, @NotNull AnAction> actionMap;
-
-    public ServiceActionManagerImpl() {
-        this(new ConcurrentHashMap<>());
+    override fun getServiceActions(): Array<AnAction?> {
+        return this.actionMap.values.toTypedArray<AnAction?>()
     }
 
-    @NonInjectable
-    @TestOnly
-    public ServiceActionManagerImpl(@NotNull Map<@NotNull String, @NotNull AnAction> existingActionsMap) {
-        this.actionMap = existingActionsMap;
-    }
-
-    public AnAction @NotNull [] getServiceActions() {
-        return this.actionMap.values().toArray(new AnAction[0]);
-    }
-
-    @Override
-    public void updateActionsByDescription(@Nullable Description description) {
+    override fun updateActionsByDescription(description: Description?) {
         if (description == null) {
-            return;
+            return
         }
 
-        final Map<@NotNull String, @NotNull AnAction> newActionsMap = description.getServices()
-                .entrySet()
-                .stream()
-                .map(this::mapToServiceNameWithAction)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        val newActionsMap: MutableMap<String, AnAction> = description.getServices()
+            .entries
+            .stream()
+            .map<Optional<MutableMap.MutableEntry<String?, AnAction?>?>?> { serviceNameToActionEntry: MutableMap.MutableEntry<String?, Service?>? ->
+                this.mapToServiceNameWithAction(
+                    serviceNameToActionEntry!!
+                )
+            }
+            .flatMap<MutableMap.MutableEntry<String?, AnAction?>?> { obj: Optional<MutableMap.MutableEntry<String?, AnAction?>?>? -> obj!!.stream() }
+            .collect(Collectors.toMap(Function { Map.Entry.key }, Function { Map.Entry.value }))
 
-        this.actionMap.clear();
-        this.actionMap.putAll(newActionsMap);
+        this.actionMap.clear()
+        this.actionMap.putAll(newActionsMap)
     }
 
     // Map.Entry<ServiceName, AnAction>
-    private Optional<Map.Entry<String, AnAction>> mapToServiceNameWithAction(
-            Map.Entry<String, Service> serviceNameToActionEntry) {
-        String fullName = serviceNameToActionEntry.getValue().getFullName();
-        URL url;
+    private fun mapToServiceNameWithAction(
+        serviceNameToActionEntry: MutableMap.MutableEntry<String?, Service?>
+    ): Optional<MutableMap.MutableEntry<String?, AnAction?>?> {
+        val fullName = serviceNameToActionEntry.value!!.getFullName()
+        var url: URL?
         try {
-            url = extractServiceUrl(serviceNameToActionEntry.getValue());
-        } catch (MalformedURLException | URISyntaxException exception) {
-            LOGGER.log(Level.WARNING,
-                    String.format("Skipping open action for service %s because of its invalid URL", fullName), exception);
-            return Optional.empty();
+            url = extractServiceUrl(serviceNameToActionEntry.value!!)
+        } catch (exception: MalformedURLException) {
+            LOGGER.log(
+                Level.WARNING,
+                String.format("Skipping open action for service %s because of its invalid URL", fullName), exception
+            )
+            return Optional.empty<MutableMap.MutableEntry<String?, AnAction?>?>()
+        } catch (exception: URISyntaxException) {
+            LOGGER.log(
+                Level.WARNING,
+                String.format("Skipping open action for service %s because of its invalid URL", fullName), exception
+            )
+            return Optional.empty<MutableMap.MutableEntry<String?, AnAction?>?>()
         }
 
         if (url == null) {
-            return Optional.empty();
+            return Optional.empty<MutableMap.MutableEntry<String?, AnAction?>?>()
         }
 
-        final String actionId = ACTION_PREFIX + fullName;
-        final AnAction action = buildAction(serviceNameToActionEntry.getKey(), url, fullName);
+        val actionId = ACTION_PREFIX + fullName
+        val action = buildAction(serviceNameToActionEntry.key!!, url, fullName!!)
 
-        return Optional.of(new AbstractMap.SimpleImmutableEntry<>(actionId, action));
+        return Optional.of<MutableMap.MutableEntry<String?, AnAction?>?>(
+            AbstractMap.SimpleImmutableEntry<String?, AnAction?>(
+                actionId,
+                action
+            )
+        ) as Optional<MutableMap.MutableEntry<String?, AnAction?>?>
     }
 
-    private @Nullable URL extractServiceUrl(Service service) throws MalformedURLException, URISyntaxException {
-        String address = service.getHttpsUrl();
+    @Throws(MalformedURLException::class, URISyntaxException::class)
+    private fun extractServiceUrl(service: Service): URL? {
+        var address = service.getHttpsUrl()
         if (address == null) {
-            address = service.getHttpUrl();
+            address = service.getHttpUrl()
         }
 
         if (address != null) {
-            return new URI(address).toURL();
+            return URI(address).toURL()
         }
 
-        return null;
+        return null
     }
 
-    private @NotNull AnAction buildAction(String key, URL url, String fullName) {
-        final String text = buildActionText(key, fullName);
-        final String descriptionText = DdevIntegrationBundle.message("action.services.open.description", fullName);
-        return new OpenServiceAction(url, text, descriptionText, AllIcons.General.Web);
+    private fun buildAction(key: String, url: URL, fullName: String): AnAction {
+        val text = buildActionText(key, fullName)
+        val descriptionText = DdevIntegrationBundle.message("action.services.open.description", fullName)
+        return OpenServiceAction(url, text, descriptionText, AllIcons.General.Web)
     }
 
-    private @NotNull String buildActionText(String key, String fullName) {
-        return switch (key) {
-            case "web" -> DdevIntegrationBundle.message("action.services.open.web");
-            case "mailhog" -> DdevIntegrationBundle.message("action.services.open.mailHog");
-            case "mailpit" -> DdevIntegrationBundle.message("action.services.open.mailpit");
-            default -> DdevIntegrationBundle.message("action.services.open.any", fullName);
-        };
-    }
-
-    @Override
-    public void dispose() {
-        for (String actionId : this.actionMap.keySet()) {
-            ActionManager.getInstance().unregisterAction(actionId);
+    private fun buildActionText(key: String, fullName: String): String {
+        return when (key) {
+            "web" -> DdevIntegrationBundle.message("action.services.open.web")
+            "mailhog" -> DdevIntegrationBundle.message("action.services.open.mailHog")
+            "mailpit" -> DdevIntegrationBundle.message("action.services.open.mailpit")
+            else -> DdevIntegrationBundle.message("action.services.open.any", fullName)
         }
+    }
+
+    override fun dispose() {
+        for (actionId in this.actionMap.keys) {
+            ActionManager.getInstance().unregisterAction(actionId)
+        }
+    }
+
+    companion object {
+        private val LOGGER: Logger = Logger.getLogger(
+            ServiceActionManagerImpl::class.java.name,
+            DdevIntegrationBundle.getName()
+        )
+        private const val ACTION_PREFIX = "DdevIntegration.Services."
     }
 }

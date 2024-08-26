@@ -1,11 +1,13 @@
-package de.php_perfect.intellij.ddev;
+package de.php_perfect.intellij.ddev
 
-import com.intellij.util.messages.Topic;
-import de.php_perfect.intellij.ddev.state.State;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.util.messages.Topic
+import de.php_perfect.intellij.ddev.state.State
 
-public interface StateChangedListener {
-    Topic<StateChangedListener> DDEV_CHANGED = Topic.create("DDEV state changed", StateChangedListener.class);
+interface StateChangedListener {
+    fun onDdevChanged(state: State)
 
-    void onDdevChanged(@NotNull State state);
+    companion object {
+        val DDEV_CHANGED: Topic<StateChangedListener> =
+            Topic.create<StateChangedListener>("DDEV state changed", StateChangedListener::class.java)
+    }
 }

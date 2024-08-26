@@ -1,31 +1,39 @@
-package de.php_perfect.intellij.ddev.node;
+package de.php_perfect.intellij.ddev.node
 
-import de.php_perfect.intellij.ddev.index.IndexableConfiguration;
-import org.jetbrains.annotations.NotNull;
+import de.php_perfect.intellij.ddev.index.IndexableConfiguration
+import java.util.Objects
 
-import java.util.Objects;
-
-public record NodeInterpreterConfig(@NotNull String name, @NotNull String composeFilePath,
-                                    @NotNull String binaryPath) implements IndexableConfiguration {
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NodeInterpreterConfig that = (NodeInterpreterConfig) o;
-        return Objects.equals(name, that.name) && Objects.equals(composeFilePath, that.composeFilePath) && Objects.equals(binaryPath, that.binaryPath);
+@JvmRecord
+data class NodeInterpreterConfig(
+    name: String, composeFilePath: String,
+    binaryPath: String
+) : IndexableConfiguration {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as NodeInterpreterConfig
+        return name == that.name && composeFilePath == that.composeFilePath && binaryPath == that.binaryPath
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, composeFilePath, binaryPath);
+    override fun hashCode(): Int {
+        return Objects.hash(name, composeFilePath, binaryPath)
     }
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "NodeInterpreterConfig{" +
                 "name='" + name + '\'' +
                 ", composeFilePath='" + composeFilePath + '\'' +
                 ", binaryPath='" + binaryPath + '\'' +
-                '}';
+                '}'
+    }
+
+    val name: String
+    val composeFilePath: String
+    val binaryPath: String
+
+    init {
+        this.name = name
+        this.composeFilePath = composeFilePath
+        this.binaryPath = binaryPath
     }
 }

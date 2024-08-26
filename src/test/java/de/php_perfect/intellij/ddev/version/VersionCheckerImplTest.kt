@@ -1,32 +1,33 @@
-package de.php_perfect.intellij.ddev.version;
+package de.php_perfect.intellij.ddev.version
 
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.lang.Exception
 
-final class VersionCheckerImplTest extends BasePlatformTestCase {
-    @Override
+internal class VersionCheckerImplTest : BasePlatformTestCase() {
     @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Throws(Exception::class)
+    override fun setUp() {
+        super.setUp()
     }
 
-    @Override
     @AfterEach
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @Throws(Exception::class)
+    override fun tearDown() {
+        super.tearDown()
     }
 
     @Test
-    void checkDdevVersion() {
-        VersionCheckerImpl versionChecker = new VersionCheckerImpl(this.getProject());
-        versionChecker.checkDdevVersion();
+    fun checkDdevVersion() {
+        val versionChecker = VersionCheckerImpl(this.getProject())
+        versionChecker.checkDdevVersion()
     }
 
     @Test
-    void checkDdevVersionWithConfirmation() {
-        VersionCheckerImpl versionChecker = new VersionCheckerImpl(this.getProject());
-        versionChecker.checkDdevVersion(true);
+    fun checkDdevVersionWithConfirmation() {
+        val versionChecker = VersionCheckerImpl(this.getProject())
+        versionChecker.checkDdevVersion(true)
     }
 }

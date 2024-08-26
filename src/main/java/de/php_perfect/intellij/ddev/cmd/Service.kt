@@ -1,53 +1,48 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import org.jetbrains.annotations.Nullable;
+import java.util.Objects
 
-import java.util.Objects;
+class Service(fullName: String?, httpsUrl: String?, httpUrl: String?) {
+    private val fullName: String?
 
-public class Service {
-    private final @Nullable String fullName;
+    private val httpsUrl: String?
 
-    private final @Nullable String httpsUrl;
+    private val httpUrl: String?
 
-    private final @Nullable String httpUrl;
-
-    public Service(@Nullable String fullName, @Nullable String httpsUrl, @Nullable String httpUrl) {
-        this.fullName = fullName;
-        this.httpsUrl = httpsUrl;
-        this.httpUrl = httpUrl;
+    init {
+        this.fullName = fullName
+        this.httpsUrl = httpsUrl
+        this.httpUrl = httpUrl
     }
 
-    public @Nullable String getFullName() {
-        return fullName;
+    fun getFullName(): String? {
+        return fullName
     }
 
-    public @Nullable String getHttpUrl() {
-        return httpUrl;
+    fun getHttpUrl(): String? {
+        return httpUrl
     }
 
-    public @Nullable String getHttpsUrl() {
-        return httpsUrl;
+    fun getHttpsUrl(): String? {
+        return httpsUrl
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Service)) return false;
-        Service service = (Service) o;
-        return Objects.equals(getFullName(), service.getFullName()) && Objects.equals(getHttpUrl(), service.getHttpUrl()) && Objects.equals(getHttpsUrl(), service.getHttpsUrl());
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o !is Service) return false
+        val service = o
+        return getFullName() == service.getFullName() && getHttpUrl() == service.getHttpUrl() && getHttpsUrl() == service.getHttpsUrl()
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getFullName(), getHttpUrl(), getHttpsUrl());
+    override fun hashCode(): Int {
+        return Objects.hash(getFullName(), getHttpUrl(), getHttpsUrl())
     }
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "Service{" +
                 "fullName='" + fullName + '\'' +
                 ", httpUrl='" + httpUrl + '\'' +
                 ", httpsUrl='" + httpsUrl + '\'' +
-                '}';
+                '}'
     }
 }

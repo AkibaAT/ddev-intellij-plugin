@@ -1,26 +1,23 @@
-package de.php_perfect.intellij.ddev.actions;
+package de.php_perfect.intellij.ddev.actions
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.Project
 
-abstract class DdevRunAction extends DdevAwareAction {
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        final Project project = e.getProject();
+abstract class DdevRunAction : DdevAwareAction() {
+    override fun actionPerformed(e: AnActionEvent) {
+        val project = e.project
 
         if (project == null) {
-            return;
+            return
         }
 
-        this.run(project);
+        this.run(project)
     }
 
-    protected abstract void run(@NotNull Project project);
+    protected abstract fun run(project: Project)
 
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
     }
 }

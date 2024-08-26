@@ -1,16 +1,16 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.openapi.project.Project
 
-public interface Runner {
-    void run(@NotNull GeneralCommandLine commandLine, @NotNull String title);
+interface Runner {
+    fun run(commandLine: GeneralCommandLine, title: String)
 
-    void run(@NotNull GeneralCommandLine commandLine, @NotNull String title, @Nullable Runnable afterCompletion);
+    fun run(commandLine: GeneralCommandLine, title: String, afterCompletion: Runnable?)
 
-    static Runner getInstance(@NotNull Project project) {
-        return project.getService(Runner.class);
+    companion object {
+        fun getInstance(project: Project): Runner? {
+            return project.getService<Runner?>(Runner::class.java)
+        }
     }
 }

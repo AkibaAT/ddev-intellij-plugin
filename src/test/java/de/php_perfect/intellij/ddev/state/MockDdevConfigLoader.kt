@@ -1,22 +1,19 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.vfs.VirtualFile
 
-public final class MockDdevConfigLoader implements DdevConfigLoader {
-    private boolean exists = false;
+class MockDdevConfigLoader : DdevConfigLoader {
+    private var exists = false
 
-    public void setExists(boolean exists) {
-        this.exists = exists;
+    fun setExists(exists: Boolean) {
+        this.exists = exists
     }
 
-    @Override
-    public boolean exists() {
-        return this.exists;
+    override fun exists(): Boolean {
+        return this.exists
     }
 
-    @Override
-    public @Nullable VirtualFile load() {
-        return null;
+    override fun load(): VirtualFile? {
+        return null
     }
 }

@@ -1,32 +1,40 @@
-package de.php_perfect.intellij.ddev.php.server;
+package de.php_perfect.intellij.ddev.php.server
 
-import de.php_perfect.intellij.ddev.index.IndexableConfiguration;
-import org.jetbrains.annotations.NotNull;
+import de.php_perfect.intellij.ddev.index.IndexableConfiguration
+import java.net.URI
+import java.util.Objects
 
-import java.net.URI;
-import java.util.Objects;
-
-public record ServerConfig(@NotNull String localPath, @NotNull String remotePathPath,
-                           @NotNull URI url) implements IndexableConfiguration {
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ServerConfig that = (ServerConfig) o;
-        return Objects.equals(localPath, that.localPath) && Objects.equals(remotePathPath, that.remotePathPath) && Objects.equals(url, that.url);
+@JvmRecord
+data class ServerConfig(
+    localPath: String, remotePathPath: String,
+    url: URI
+) : IndexableConfiguration {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as ServerConfig
+        return localPath == that.localPath && remotePathPath == that.remotePathPath && url == that.url
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(localPath, remotePathPath, url);
+    override fun hashCode(): Int {
+        return Objects.hash(localPath, remotePathPath, url)
     }
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "ServerConfig{" +
                 "localPath='" + localPath + '\'' +
                 ", remotePathPath='" + remotePathPath + '\'' +
                 ", url=" + url +
-                '}';
+                '}'
+    }
+
+    val localPath: String
+    val remotePathPath: String
+    val url: URI
+
+    init {
+        this.localPath = localPath
+        this.remotePathPath = remotePathPath
+        this.url = url
     }
 }

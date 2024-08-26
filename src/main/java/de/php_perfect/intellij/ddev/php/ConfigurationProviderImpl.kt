@@ -1,58 +1,51 @@
-package de.php_perfect.intellij.ddev.php;
+package de.php_perfect.intellij.ddev.php
 
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.dockerCompose.DdevComposeFileLoader;
-import de.php_perfect.intellij.ddev.notification.DdevNotifier;
-import de.php_perfect.intellij.ddev.settings.DdevSettingsState;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.ide.plugins.PluginManager
+import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.dockerCompose.DdevComposeFileLoader
+import de.php_perfect.intellij.ddev.notification.DdevNotifier
+import de.php_perfect.intellij.ddev.settings.DdevSettingsState
 
-import java.util.List;
+class ConfigurationProviderImpl(private val project: Project) : ConfigurationProvider {
 
-public final class ConfigurationProviderImpl implements ConfigurationProvider {
-    private static final List<String> REQUIRED_PLUGINS = List.of(
-            "org.jetbrains.plugins.phpstorm-remote-interpreter",
-            "org.jetbrains.plugins.phpstorm-docker",
-            "Docker"
-    );
-
-    private final @NotNull Project project;
-
-    public ConfigurationProviderImpl(@NotNull Project project) {
-        this.project = project;
-    }
-
-    @Override
-    public void configure(@NotNull Description description) {
+    override fun configure(description: Description) {
         if (!DdevSettingsState.getInstance(this.project).autoConfigurePhpInterpreter) {
-            return;
+            return
         }
 
         if (description.getName() == null || description.getPhpVersion() == null) {
-            return;
+            return
         }
 
-        final VirtualFile composeFile = DdevComposeFileLoader.getInstance(this.project).load();
+        val composeFile = DdevComposeFileLoader.getInstance(this.project)!!.load()
 
         if (composeFile == null || !composeFile.exists()) {
-            return;
+            return
         }
 
-        final var pluginManager = PluginManager.getInstance();
+        val pluginManager = PluginManager.getInstance()
 
-        for (final String id : REQUIRED_PLUGINS) {
-            final PluginId pluginId = PluginId.findId(id);
+        for (id in REQUIRED_PLUGINS) {
+            val pluginId = PluginId.findId(id)
 
             if (pluginId == null || pluginManager.findEnabledPlugin(pluginId) == null) {
-                DdevNotifier.getInstance(this.project).notifyMissingPlugin(id);
-                return;
+                DdevNotifier.getInstance(this.project)!!.notifyMissingPlugin(id.toString())
+                return
             }
         }
 
-        final DdevInterpreterConfig ddevInterpreterConfig = new DdevInterpreterConfig(description.getName(), "php" + description.getPhpVersion(), composeFile.getPath());
-        PhpInterpreterProvider.getInstance(this.project).registerInterpreter(ddevInterpreterConfig);
+        val ddevInterpreterConfig =
+            DdevInterpreterConfig(description.getName()!!, "php" + description.getPhpVersion(), composeFile.path)
+        PhpInterpreterProvider.Companion.getInstance(this.project)?.registerInterpreter(ddevInterpreterConfig)
+    }
+
+    companion object {
+        private val REQUIRED_PLUGINS: MutableList<String?> = mutableListOf<String?>(
+            "org.jetbrains.plugins.phpstorm-remote-interpreter",
+            "org.jetbrains.plugins.phpstorm-docker",
+            "Docker"
+        )
     }
 }

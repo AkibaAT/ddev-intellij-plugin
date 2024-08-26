@@ -1,18 +1,17 @@
-package de.php_perfect.intellij.ddev.serviceActions;
+package de.php_perfect.intellij.ddev.serviceActions
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.cmd.Description
 
-public interface ServiceActionManager {
+interface ServiceActionManager {
+    fun getServiceActions(): Array<AnAction?>
 
-    AnAction @NotNull [] getServiceActions();
+    fun updateActionsByDescription(description: Description?)
 
-    void updateActionsByDescription(@Nullable Description description);
-
-    static ServiceActionManager getInstance(@NotNull Project project) {
-        return project.getService(ServiceActionManager.class);
+    companion object {
+        fun getInstance(project: Project): ServiceActionManager? {
+            return project.getService<ServiceActionManager?>(ServiceActionManager::class.java)
+        }
     }
 }

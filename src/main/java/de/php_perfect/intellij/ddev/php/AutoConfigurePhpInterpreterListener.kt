@@ -1,24 +1,25 @@
-package de.php_perfect.intellij.ddev.php;
+package de.php_perfect.intellij.ddev.php
 
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.DescriptionChangedListener;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.DescriptionChangedListener
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.dockerCompose.DdevComposeFileLoader.Companion.getInstance
+import de.php_perfect.intellij.ddev.dockerCompose.DockerComposeCredentialProvider.Companion.getInstance
+import de.php_perfect.intellij.ddev.index.ManagedConfigurationIndex.Companion.getInstance
+import de.php_perfect.intellij.ddev.notification.DdevNotifier.Companion.getInstance
 
-public final class AutoConfigurePhpInterpreterListener implements DescriptionChangedListener {
-    private final @NotNull Project project;
+class AutoConfigurePhpInterpreterListener(project: Project) : DescriptionChangedListener {
+    private val project: Project
 
-    public AutoConfigurePhpInterpreterListener(@NotNull Project project) {
-        this.project = project;
+    init {
+        this.project = project
     }
 
-    @Override
-    public void onDescriptionChanged(@Nullable Description description) {
+    override fun onDescriptionChanged(description: Description?) {
         if (description == null) {
-            return;
+            return
         }
 
-        ConfigurationProvider.getInstance(this.project).configure(description);
+        ConfigurationProvider.Companion.getInstance(this.project).configure(description)
     }
 }

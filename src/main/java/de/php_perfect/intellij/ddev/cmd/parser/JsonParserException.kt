@@ -1,13 +1,9 @@
-package de.php_perfect.intellij.ddev.cmd.parser;
+package de.php_perfect.intellij.ddev.cmd.parser
 
-import org.jetbrains.annotations.NotNull;
+import java.lang.Exception
 
-public class JsonParserException extends Exception {
-    public JsonParserException(String message) {
-        super(message);
-    }
+class JsonParserException : Exception {
+    constructor(message: String?) : super(message)
 
-    public JsonParserException(String message, @NotNull Throwable cause) {
-        super(message, cause);
-    }
+    constructor(message: String?, cause: Throwable) : super(message, cause)
 }

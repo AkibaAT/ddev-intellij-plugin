@@ -1,14 +1,15 @@
-package de.php_perfect.intellij.ddev.version;
+package de.php_perfect.intellij.ddev.version
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
 
-public interface VersionChecker {
-    void checkDdevVersion();
+interface VersionChecker {
+    fun checkDdevVersion()
 
-    void checkDdevVersion(boolean confirmNewestVersion);
+    fun checkDdevVersion(confirmNewestVersion: Boolean)
 
-    static @NotNull VersionChecker getInstance(@NotNull Project project) {
-        return project.getService(VersionChecker.class);
+    companion object {
+        fun getInstance(project: Project): VersionChecker {
+            return project.getService<VersionChecker>(VersionChecker::class.java)
+        }
     }
 }

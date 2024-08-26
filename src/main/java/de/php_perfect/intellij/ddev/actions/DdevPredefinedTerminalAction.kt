@@ -1,51 +1,46 @@
-package de.php_perfect.intellij.ddev.actions;
+package de.php_perfect.intellij.ddev.actions
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.state.DdevStateManager;
-import de.php_perfect.intellij.ddev.state.State;
-import de.php_perfect.intellij.ddev.terminal.DdevTerminalRunner;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.terminal.TerminalTabState;
-import org.jetbrains.plugins.terminal.TerminalToolWindowManager;
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.state.DdevStateManager
+import de.php_perfect.intellij.ddev.terminal.DdevTerminalRunner
+import org.jetbrains.plugins.terminal.TerminalTabState
+import org.jetbrains.plugins.terminal.TerminalToolWindowManager
 
-public final class DdevPredefinedTerminalAction extends DdevAwareAction {
-    @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        Project project = e.getProject();
+class DdevPredefinedTerminalAction : DdevAwareAction() {
+    override fun actionPerformed(e: AnActionEvent) {
+        val project = e.project
 
         if (project == null) {
-            return;
+            return
         }
 
-        DdevTerminalRunner runner = new DdevTerminalRunner(project);
-        TerminalTabState tabState = new TerminalTabState();
-        tabState.myTabName = "DDEV Web Container";
+        val runner = DdevTerminalRunner(project)
+        val tabState = TerminalTabState()
+        tabState.myTabName = "DDEV Web Container"
 
-        TerminalToolWindowManager.getInstance(project).createNewSession(runner, tabState);
+        TerminalToolWindowManager.getInstance(project).createNewSession(runner, tabState)
     }
 
-    @Override
-    protected boolean isActive(@NotNull Project project) {
-        final State state = DdevStateManager.getInstance(project).getState();
+    override fun isActive(project: Project): Boolean {
+        val state = DdevStateManager.getInstance(project).getState()
 
         if (!state.isAvailable() || !state.isConfigured()) {
-            return false;
+            return false
         }
 
-        Description description = state.getDescription();
+        val description = state.getDescription()
 
         if (description == null) {
-            return false;
+            return false
         }
 
-        return description.getStatus() == Description.Status.RUNNING;
+        return description.getStatus() == Description.Status.RUNNING
     }
 
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
     }
 }

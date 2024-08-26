@@ -1,22 +1,23 @@
-package de.php_perfect.intellij.ddev.version;
+package de.php_perfect.intellij.ddev.version
 
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.StateInitializedListener;
-import de.php_perfect.intellij.ddev.settings.DdevSettingsState;
-import de.php_perfect.intellij.ddev.state.State;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.StateInitializedListener
+import de.php_perfect.intellij.ddev.notification.DdevNotifier.Companion.getInstance
+import de.php_perfect.intellij.ddev.settings.DdevSettingsState
+import de.php_perfect.intellij.ddev.settings.DdevSettingsState.Companion.getInstance
+import de.php_perfect.intellij.ddev.state.DdevStateManager.Companion.getInstance
+import de.php_perfect.intellij.ddev.state.State
 
-public final class CheckVersionListener implements StateInitializedListener {
-    private final @NotNull Project project;
+class CheckVersionListener(project: Project) : StateInitializedListener {
+    private val project: Project
 
-    public CheckVersionListener(@NotNull Project project) {
-        this.project = project;
+    init {
+        this.project = project
     }
 
-    @Override
-    public void onStateInitialized(@NotNull State state) {
+    override fun onStateInitialized(state: State) {
         if (DdevSettingsState.getInstance(this.project).checkForUpdates) {
-            VersionChecker.getInstance(this.project).checkDdevVersion();
+            VersionChecker.Companion.getInstance(this.project).checkDdevVersion()
         }
     }
 }

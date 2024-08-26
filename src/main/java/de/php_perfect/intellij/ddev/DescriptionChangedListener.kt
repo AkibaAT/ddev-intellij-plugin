@@ -1,11 +1,15 @@
-package de.php_perfect.intellij.ddev;
+package de.php_perfect.intellij.ddev
 
-import com.intellij.util.messages.Topic;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.util.messages.Topic
+import de.php_perfect.intellij.ddev.cmd.Description
 
-public interface DescriptionChangedListener {
-    Topic<DescriptionChangedListener> DESCRIPTION_CHANGED = Topic.create("DDEV description changed", DescriptionChangedListener.class);
+interface DescriptionChangedListener {
+    fun onDescriptionChanged(description: Description?)
 
-    void onDescriptionChanged(@Nullable Description description);
+    companion object {
+        val DESCRIPTION_CHANGED: Topic<DescriptionChangedListener> = Topic.create<DescriptionChangedListener>(
+            "DDEV description changed",
+            DescriptionChangedListener::class.java
+        )
+    }
 }

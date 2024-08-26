@@ -1,13 +1,16 @@
-package de.php_perfect.intellij.ddev.dockerCompose;
+package de.php_perfect.intellij.ddev.dockerCompose
 
-import com.intellij.docker.remote.DockerComposeCredentialsHolder;
-import com.intellij.openapi.application.ApplicationManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.docker.remote.DockerComposeCredentialsHolder
+import com.intellij.openapi.application.ApplicationManager
 
-public interface DockerComposeCredentialProvider {
-    DockerComposeCredentialsHolder getDdevDockerComposeCredentials(@NotNull DockerComposeConfig dockerComposeConfig);
+interface DockerComposeCredentialProvider {
+    fun getDdevDockerComposeCredentials(dockerComposeConfig: DockerComposeConfig): DockerComposeCredentialsHolder?
 
-    static DockerComposeCredentialProvider getInstance() {
-        return ApplicationManager.getApplication().getService(DockerComposeCredentialProvider.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(): DockerComposeCredentialProvider? {
+            return ApplicationManager.getApplication()
+                .getService<DockerComposeCredentialProvider?>(DockerComposeCredentialProvider::class.java)
+        }
     }
 }

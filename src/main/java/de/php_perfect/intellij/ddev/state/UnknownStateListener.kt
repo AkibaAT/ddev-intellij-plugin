@@ -1,28 +1,25 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.StateChangedListener;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.notification.DdevNotifier;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.StateChangedListener
+import de.php_perfect.intellij.ddev.notification.DdevNotifier
 
-public final class UnknownStateListener implements StateChangedListener {
-    private final Project project;
+class UnknownStateListener(project: Project) : StateChangedListener {
+    private val project: Project
 
-    public UnknownStateListener(Project project) {
-        this.project = project;
+    init {
+        this.project = project
     }
 
-    @Override
-    public void onDdevChanged(@NotNull State state) {
+    override fun onDdevChanged(state: State) {
         if (!state.isAvailable() || !state.isConfigured()) {
-            return;
+            return
         }
 
-        Description description = state.getDescription();
+        val description = state.getDescription()
 
         if (description == null || description.getStatus() == null) {
-            DdevNotifier.getInstance(this.project).notifyUnknownStateEntered();
+            DdevNotifier.getInstance(this.project)!!.notifyUnknownStateEntered()
         }
     }
 }

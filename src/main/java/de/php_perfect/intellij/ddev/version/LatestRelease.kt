@@ -1,37 +1,32 @@
-package de.php_perfect.intellij.ddev.version;
+package de.php_perfect.intellij.ddev.version
 
-import org.jetbrains.annotations.Nullable;
+import java.util.Objects
 
-import java.util.Objects;
+class LatestRelease(tagName: String?) {
+    private val tagName: String?
 
-public final class LatestRelease {
-    private final @Nullable String tagName;
-
-    public LatestRelease(@Nullable String tagName) {
-        this.tagName = tagName;
+    init {
+        this.tagName = tagName
     }
 
-    public @Nullable String getTagName() {
-        return tagName;
+    fun getTagName(): String? {
+        return tagName
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LatestRelease that = (LatestRelease) o;
-        return Objects.equals(getTagName(), that.getTagName());
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as LatestRelease
+        return getTagName() == that.getTagName()
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getTagName());
+    override fun hashCode(): Int {
+        return Objects.hash(getTagName())
     }
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "LatestRelease{" +
                 "tagName='" + tagName + '\'' +
-                '}';
+                '}'
     }
 }

@@ -1,11 +1,16 @@
-package de.php_perfect.intellij.ddev;
+package de.php_perfect.intellij.ddev
 
-import com.intellij.util.messages.Topic;
-import de.php_perfect.intellij.ddev.cmd.DatabaseInfo;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.util.messages.Topic
+import de.php_perfect.intellij.ddev.cmd.DatabaseInfo
 
-public interface DatabaseInfoChangedListener {
-    Topic<DatabaseInfoChangedListener> DATABASE_INFO_CHANGED_TOPIC = Topic.create("DDEV Database Info Changed", DatabaseInfoChangedListener.class);
+interface DatabaseInfoChangedListener {
+    fun onDatabaseInfoChanged(databaseInfo: DatabaseInfo?)
 
-    void onDatabaseInfoChanged(@Nullable DatabaseInfo databaseInfo);
+    companion object {
+        val DATABASE_INFO_CHANGED_TOPIC: Topic<DatabaseInfoChangedListener> =
+            Topic.create<DatabaseInfoChangedListener>(
+                "DDEV Database Info Changed",
+                DatabaseInfoChangedListener::class.java
+            )
+    }
 }

@@ -1,105 +1,107 @@
-package de.php_perfect.intellij.ddev.index;
+package de.php_perfect.intellij.ddev.index
 
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import de.php_perfect.intellij.ddev.index.ManagedConfigurationIndex.Companion.getInstance
+import de.php_perfect.intellij.ddev.index.ManagedConfigurationIndexTest.SomeConfiguration
+import de.php_perfect.intellij.ddev.index.ManagedConfigurationIndexTest.SomeOtherConfiguration
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.lang.Exception
 
-class ManagedConfigurationIndexTest extends BasePlatformTestCase {
-    private static class SomeConfiguration implements IndexableConfiguration {
-        @Override
-        public int hashCode() {
-            return 1;
+internal class ManagedConfigurationIndexTest : BasePlatformTestCase() {
+    private class SomeConfiguration : IndexableConfiguration {
+        override fun hashCode(): Int {
+            return 1
         }
     }
 
-    private static class SomeOtherConfiguration implements IndexableConfiguration {
-        @Override
-        public int hashCode() {
-            return 2;
+    private class SomeOtherConfiguration : IndexableConfiguration {
+        override fun hashCode(): Int {
+            return 2
         }
     }
 
-    @Override
     @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Throws(Exception::class)
+    override fun setUp() {
+        super.setUp()
     }
 
     @Test
-    void addToIndexCheckId() {
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.getProject());
-        managedConfigurationIndex.set("as73asvb324", SomeConfiguration.class, 123);
+    fun addToIndexCheckId() {
+        val managedConfigurationIndex = getInstance(this.getProject())
+        managedConfigurationIndex!!.set("as73asvb324", SomeConfiguration::class.java, 123)
 
-        assertTrue(managedConfigurationIndex.isManaged("as73asvb324", SomeConfiguration.class));
-        assertFalse(managedConfigurationIndex.isManaged("fooBar", SomeConfiguration.class));
+        assertTrue(managedConfigurationIndex.isManaged("as73asvb324", SomeConfiguration::class.java))
+        assertFalse(managedConfigurationIndex.isManaged("fooBar", SomeConfiguration::class.java))
     }
 
     @Test
-    void getFromIndex() {
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.getProject());
-        managedConfigurationIndex.set("as73asvb324", SomeConfiguration.class, 123);
+    fun getFromIndex() {
+        val managedConfigurationIndex = getInstance(this.getProject())
+        managedConfigurationIndex!!.set("as73asvb324", SomeConfiguration::class.java, 123)
 
-        assertSame("as73asvb324", managedConfigurationIndex.get(SomeConfiguration.class).id());
-        assertSame(null, managedConfigurationIndex.get(SomeOtherConfiguration.class));
+        assertSame("as73asvb324", managedConfigurationIndex.get(SomeConfiguration::class.java)!!.id)
+        assertSame(null, managedConfigurationIndex.get(SomeOtherConfiguration::class.java))
     }
 
     @Test
-    void addToIndexCheckType() {
-        final String key = "as73asvb324";
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.getProject());
-        managedConfigurationIndex.set(key, SomeConfiguration.class, 123);
+    fun addToIndexCheckType() {
+        val key = "as73asvb324"
+        val managedConfigurationIndex = getInstance(this.getProject())
+        managedConfigurationIndex!!.set(key, SomeConfiguration::class.java, 123)
 
-        assertTrue(managedConfigurationIndex.isManaged(key, SomeConfiguration.class));
-        assertFalse(managedConfigurationIndex.isManaged(key, SomeOtherConfiguration.class));
+        assertTrue(managedConfigurationIndex.isManaged(key, SomeConfiguration::class.java))
+        assertFalse(managedConfigurationIndex.isManaged(key, SomeOtherConfiguration::class.java))
     }
 
     @Test
-    void removeIndex() {
-        final String key = "as73asvb324";
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.getProject());
+    fun removeIndex() {
+        val key = "as73asvb324"
+        val managedConfigurationIndex = getInstance(this.getProject())
 
-        managedConfigurationIndex.set(key, SomeConfiguration.class, 123);
-        assertTrue(managedConfigurationIndex.isManaged(key, SomeConfiguration.class));
+        managedConfigurationIndex!!.set(key, SomeConfiguration::class.java, 123)
+        assertTrue(managedConfigurationIndex.isManaged(key, SomeConfiguration::class.java))
 
-        managedConfigurationIndex.remove(SomeConfiguration.class);
-        assertFalse(managedConfigurationIndex.isManaged(key, SomeConfiguration.class));
+        managedConfigurationIndex.remove(SomeConfiguration::class.java)
+        assertFalse(managedConfigurationIndex.isManaged(key, SomeConfiguration::class.java))
     }
 
     @Test
-    void purgeIndex() {
-        final String key = "as73asvb324";
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.getProject());
+    fun purgeIndex() {
+        val key = "as73asvb324"
+        val managedConfigurationIndex = getInstance(this.getProject())
 
-        managedConfigurationIndex.set(key, SomeConfiguration.class, 123);
-        assertTrue(managedConfigurationIndex.isManaged(key, SomeConfiguration.class));
+        managedConfigurationIndex!!.set(key, SomeConfiguration::class.java, 123)
+        assertTrue(managedConfigurationIndex.isManaged(key, SomeConfiguration::class.java))
 
-        managedConfigurationIndex.purge();
-        assertFalse(managedConfigurationIndex.isManaged(key, SomeConfiguration.class));
+        managedConfigurationIndex.purge()
+        assertFalse(managedConfigurationIndex.isManaged(key, SomeConfiguration::class.java))
     }
 
     @Test
-    void isUpToDate() {
-        final String key = "as73asvb324";
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.getProject());
+    fun isUpToDate() {
+        val key = "as73asvb324"
+        val managedConfigurationIndex = getInstance(this.getProject())
 
-        managedConfigurationIndex.set(key, SomeConfiguration.class, 123);
-        assertTrue(managedConfigurationIndex.isUpToDate(SomeConfiguration.class, 123));
-        assertFalse(managedConfigurationIndex.isUpToDate(SomeConfiguration.class, 321));
+        managedConfigurationIndex!!.set(key, SomeConfiguration::class.java, 123)
+        assertTrue(managedConfigurationIndex.isUpToDate(SomeConfiguration::class.java, 123))
+        assertFalse(managedConfigurationIndex.isUpToDate(SomeConfiguration::class.java, 321))
     }
 
     @Test
-    void isUpToDateNonExistent() {
-        final ManagedConfigurationIndex managedConfigurationIndex = ManagedConfigurationIndex.getInstance(this.getProject());
+    fun isUpToDateNonExistent() {
+        val managedConfigurationIndex = getInstance(this.getProject())
 
-        assertFalse(managedConfigurationIndex.isUpToDate(SomeConfiguration.class, 123));
+        assertFalse(managedConfigurationIndex!!.isUpToDate(SomeConfiguration::class.java, 123))
     }
 
-    @Override
     @AfterEach
-    protected void tearDown() throws Exception {
-        ManagedConfigurationIndex.getInstance(this.getProject()).purge();
+    @Throws(Exception::class)
+    override fun tearDown() {
+        getInstance(this.getProject())!!.purge()
 
-        super.tearDown();
+        super.tearDown()
     }
 }

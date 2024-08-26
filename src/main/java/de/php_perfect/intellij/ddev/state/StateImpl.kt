@@ -1,122 +1,111 @@
-package de.php_perfect.intellij.ddev.state;
+package de.php_perfect.intellij.ddev.state
 
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.version.Version;
-import org.jetbrains.annotations.Nullable;
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.version.Version
+import java.util.Objects
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
-import java.util.Objects;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+internal class StateImpl : State {
+    private var version: Version? = null
 
-final class StateImpl implements State {
-    private @Nullable Version version = null;
+    private var description: Description? = null
 
-    private @Nullable Description description = null;
+    private var ddevBinary: String? = null
 
-    private @Nullable String ddevBinary = null;
+    private var configured = false
 
-    private boolean configured = false;
+    private val readWriteLock: ReadWriteLock = ReentrantReadWriteLock()
 
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-
-    @Override
-    public boolean isBinaryConfigured() {
-        return this.ddevBinary != null && !this.ddevBinary.isEmpty();
+    override fun isBinaryConfigured(): Boolean {
+        return this.ddevBinary != null && !this.ddevBinary!!.isEmpty()
     }
 
-    @Override
-    public boolean isAvailable() {
-        return this.version != null;
+    override fun isAvailable(): Boolean {
+        return this.version != null
     }
 
-    @Override
-    public @Nullable String getDdevBinary() {
-        return ddevBinary;
+    override fun getDdevBinary(): String? {
+        return ddevBinary
     }
 
-    public void setDdevBinary(@Nullable String ddevBinary) {
-        this.ddevBinary = ddevBinary;
+    fun setDdevBinary(ddevBinary: String?) {
+        this.ddevBinary = ddevBinary
     }
 
-    @Override
-    public boolean isConfigured() {
-        return this.configured;
+    override fun isConfigured(): Boolean {
+        return this.configured
     }
 
-    public void setConfigured(boolean configured) {
-        this.configured = configured;
+    fun setConfigured(configured: Boolean) {
+        this.configured = configured
     }
 
-    public void setDdevVersion(@Nullable Version ddevVersion) {
-        this.readWriteLock.writeLock().lock();
+    fun setDdevVersion(ddevVersion: Version?) {
+        this.readWriteLock.writeLock().lock()
         try {
-            this.version = ddevVersion;
+            this.version = ddevVersion
         } finally {
-            this.readWriteLock.writeLock().unlock();
+            this.readWriteLock.writeLock().unlock()
         }
     }
 
-    @Override
-    public @Nullable Version getDdevVersion() {
-        this.readWriteLock.readLock().lock();
+    override fun getDdevVersion(): Version? {
+        this.readWriteLock.readLock().lock()
         try {
-            return this.version;
+            return this.version
         } finally {
-            this.readWriteLock.readLock().unlock();
+            this.readWriteLock.readLock().unlock()
         }
     }
 
-    @Override
-    public @Nullable Description getDescription() {
-        this.readWriteLock.readLock().lock();
+    override fun getDescription(): Description? {
+        this.readWriteLock.readLock().lock()
         try {
-            return this.description;
+            return this.description
         } finally {
-            this.readWriteLock.readLock().unlock();
+            this.readWriteLock.readLock().unlock()
         }
     }
 
-    public void setDescription(@Nullable Description description) {
-        this.readWriteLock.writeLock().lock();
+    fun setDescription(description: Description?) {
+        this.readWriteLock.writeLock().lock()
         try {
-            this.description = description;
+            this.description = description
         } finally {
-            this.readWriteLock.writeLock().unlock();
+            this.readWriteLock.writeLock().unlock()
         }
     }
 
-    public void reset() {
-        this.readWriteLock.writeLock().lock();
+    fun reset() {
+        this.readWriteLock.writeLock().lock()
         try {
-            this.version = null;
-            this.description = null;
-            this.ddevBinary = null;
-            this.configured = false;
+            this.version = null
+            this.description = null
+            this.ddevBinary = null
+            this.configured = false
         } finally {
-            this.readWriteLock.writeLock().unlock();
+            this.readWriteLock.writeLock().unlock()
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StateImpl state = (StateImpl) o;
-        return isConfigured() == state.isConfigured() && Objects.equals(version, state.version) && Objects.equals(getDescription(), state.getDescription()) && Objects.equals(getDdevBinary(), state.getDdevBinary());
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val state = o as StateImpl
+        return isConfigured() == state.isConfigured() && version == state.version && getDescription() == state.getDescription() && getDdevBinary() == state.getDdevBinary()
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(version, getDescription(), getDdevBinary(), isConfigured());
+    override fun hashCode(): Int {
+        return Objects.hash(version, getDescription(), getDdevBinary(), isConfigured())
     }
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "StateImpl{" +
                 "version=" + version +
                 ", description=" + description +
                 ", ddevBinary='" + ddevBinary + "'" +
                 ", configured=" + configured +
-                '}';
+                '}'
     }
 }

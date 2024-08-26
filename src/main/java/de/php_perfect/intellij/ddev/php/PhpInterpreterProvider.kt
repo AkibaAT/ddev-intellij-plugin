@@ -1,12 +1,13 @@
-package de.php_perfect.intellij.ddev.php;
+package de.php_perfect.intellij.ddev.php
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
 
-public interface PhpInterpreterProvider {
-    void registerInterpreter(final @NotNull DdevInterpreterConfig interpreterConfig);
+interface PhpInterpreterProvider {
+    fun registerInterpreter(interpreterConfig: DdevInterpreterConfig)
 
-    static PhpInterpreterProvider getInstance(final @NotNull Project project) {
-        return project.getService(PhpInterpreterProvider.class);
+    companion object {
+        fun getInstance(project: Project): PhpInterpreterProvider? {
+            return project.getService<PhpInterpreterProvider?>(PhpInterpreterProvider::class.java)
+        }
     }
 }

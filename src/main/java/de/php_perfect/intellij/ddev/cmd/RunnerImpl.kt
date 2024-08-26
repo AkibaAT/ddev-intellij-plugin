@@ -1,62 +1,63 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.RunContentExecutor;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.ColoredProcessHandler;
-import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.process.ProcessTerminatedListener;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
-import de.php_perfect.intellij.ddev.cmd.wsl.WslAware;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.execution.ExecutionException
+import com.intellij.execution.RunContentExecutor
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.ColoredProcessHandler
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.process.ProcessTerminatedListener
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.Disposer
+import de.php_perfect.intellij.ddev.cmd.wsl.WslAware.patchCommandLine
 
-public final class RunnerImpl implements Runner, Disposable {
-    private static final Logger LOG = Logger.getInstance(RunnerImpl.class);
+class RunnerImpl(project: Project) : Runner, Disposable {
+    private val project: Project
 
-    private final @NotNull Project project;
-
-    public RunnerImpl(@NotNull Project project) {
-        this.project = project;
+    init {
+        this.project = project
     }
 
-    @Override
-    public void run(@NotNull GeneralCommandLine commandLine, @NotNull String title) {
-        this.run(commandLine, title, null);
+    override fun run(commandLine: GeneralCommandLine, title: String) {
+        this.run(commandLine, title, null)
     }
 
-    @Override
-    public void run(@NotNull GeneralCommandLine commandLine, @NotNull String title, @Nullable Runnable afterCompletion) {
-        ApplicationManager.getApplication().invokeLater(() -> {
+    override fun run(commandLine: GeneralCommandLine, title: String, afterCompletion: Runnable?) {
+        ApplicationManager.getApplication().invokeLater(Runnable {
             try {
-                final ProcessHandler processHandler = this.createProcessHandler(commandLine);
-                final RunContentExecutor runContentExecutor = new RunContentExecutor(this.project, processHandler)
-                        .withTitle(title)
-                        .withActivateToolWindow(true)
-                        .withAfterCompletion(afterCompletion)
-                        .withStop(processHandler::destroyProcess, () -> !processHandler.isProcessTerminated());
-                Disposer.register(this, runContentExecutor);
-                runContentExecutor.run();
-            } catch (ExecutionException exception) {
-                LOG.warn("An error occurred running " + commandLine.getCommandLineString(), exception);
+                val processHandler = this.createProcessHandler(commandLine)
+                val runContentExecutor = RunContentExecutor(this.project, processHandler)
+                    .withTitle(title)
+                    .withActivateToolWindow(true)
+                    .withAfterCompletion(afterCompletion)
+                    .withStop(
+                        Runnable { processHandler.destroyProcess() },
+                        Computable { !processHandler.isProcessTerminated() })
+                Disposer.register(this, runContentExecutor)
+                runContentExecutor.run()
+            } catch (exception: ExecutionException) {
+                LOG.warn("An error occurred running " + commandLine.getCommandLineString(), exception)
             }
-        }, ModalityState.nonModal());
+        }, ModalityState.nonModal())
     }
 
-    private @NotNull ProcessHandler createProcessHandler(GeneralCommandLine commandLine) throws ExecutionException {
-        final ProcessHandler handler = new ColoredProcessHandler(WslAware.patchCommandLine(commandLine));
-        ProcessTerminatedListener.attach(handler);
+    @Throws(ExecutionException::class)
+    private fun createProcessHandler(commandLine: GeneralCommandLine?): ProcessHandler {
+        val handler: ProcessHandler = ColoredProcessHandler(patchCommandLine<GeneralCommandLine?>(commandLine)!!)
+        ProcessTerminatedListener.attach(handler)
 
-        return handler;
+        return handler
     }
 
-    @Override
-    public void dispose() {
+    override fun dispose() {
         // Use service as parent disposable for running processes
+    }
+
+    companion object {
+        private val LOG = Logger.getInstance(RunnerImpl::class.java)
     }
 }

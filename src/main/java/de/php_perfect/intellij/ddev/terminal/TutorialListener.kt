@@ -1,27 +1,28 @@
-package de.php_perfect.intellij.ddev.terminal;
+package de.php_perfect.intellij.ddev.terminal
 
-import com.intellij.openapi.actionSystem.impl.ActionButton;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
-import com.intellij.openapi.wm.impl.InternalDecorator;
-import com.intellij.ui.ComponentUtil;
-import de.php_perfect.intellij.ddev.tutorial.GotItTutorial;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.terminal.TerminalToolWindowFactory;
-import org.jetbrains.plugins.terminal.action.TerminalNewPredefinedSessionAction;
+import com.intellij.openapi.actionSystem.impl.ActionButton
+import com.intellij.openapi.wm.ToolWindow
+import com.intellij.openapi.wm.ex.ToolWindowManagerListener
+import com.intellij.openapi.wm.impl.InternalDecorator
+import com.intellij.ui.ComponentUtil
+import de.php_perfect.intellij.ddev.tutorial.GotItTutorial
+import org.jetbrains.plugins.terminal.TerminalToolWindowFactory
+import org.jetbrains.plugins.terminal.action.TerminalNewPredefinedSessionAction
+import java.util.function.Consumer
 
-public final class TutorialListener implements ToolWindowManagerListener {
-
-    @Override
-    public void toolWindowShown(final @NotNull ToolWindow toolWindow) {
-        if (!TerminalToolWindowFactory.TOOL_WINDOW_ID.equals(toolWindow.getId())) {
-            return;
+class TutorialListener : ToolWindowManagerListener {
+    override fun toolWindowShown(toolWindow: ToolWindow) {
+        if (TerminalToolWindowFactory.TOOL_WINDOW_ID != toolWindow.id) {
+            return
         }
 
-        final InternalDecorator decorator = ComponentUtil.getParentOfType(InternalDecorator.class, toolWindow.getComponent());
+        val decorator =
+            ComponentUtil.getParentOfType<InternalDecorator?>(InternalDecorator::class.java, toolWindow.component)
 
-        ComponentUtil.findComponentsOfType(decorator, ActionButton.class).stream()
-                .filter(button -> button.getAction() instanceof TerminalNewPredefinedSessionAction)
-                .findFirst().ifPresent(button -> GotItTutorial.getInstance().showTerminalTutorial(button, toolWindow.getDisposable()));
+        ComponentUtil.findComponentsOfType<ActionButton?>(decorator, ActionButton::class.java).stream()
+            .filter { button: ActionButton? -> button!!.action is TerminalNewPredefinedSessionAction }
+            .findFirst().ifPresent(Consumer { button: ActionButton? ->
+                GotItTutorial.getInstance()?.showTerminalTutorial(button!!, toolWindow.disposable)
+            })
     }
 }

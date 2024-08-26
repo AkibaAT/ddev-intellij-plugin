@@ -1,17 +1,17 @@
-package de.php_perfect.intellij.ddev.tutorial;
+package de.php_perfect.intellij.ddev.tutorial
 
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
+import javax.swing.JComponent
 
-import javax.swing.*;
+interface GotItTutorial {
+    fun showStatusBarTutorial(component: JComponent, disposable: Disposable)
 
-public interface GotItTutorial {
-    void showStatusBarTutorial(@NotNull JComponent component, @NotNull Disposable disposable);
+    fun showTerminalTutorial(component: JComponent, disposable: Disposable)
 
-    void showTerminalTutorial(@NotNull JComponent component, @NotNull Disposable disposable);
-
-    static GotItTutorial getInstance() {
-        return ApplicationManager.getApplication().getService(GotItTutorial.class);
+    companion object {
+        fun getInstance(): GotItTutorial? {
+            return ApplicationManager.getApplication().getService<GotItTutorial?>(GotItTutorial::class.java)
+        }
     }
 }

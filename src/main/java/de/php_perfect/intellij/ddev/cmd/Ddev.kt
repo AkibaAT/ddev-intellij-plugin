@@ -1,18 +1,23 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import de.php_perfect.intellij.ddev.version.Version;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.Project
+import de.php_perfect.intellij.ddev.version.Version
 
-public interface Ddev {
-    @NotNull Version version(@NotNull String binary, @NotNull Project project) throws CommandFailedException;
+interface Ddev {
+    @Throws(CommandFailedException::class)
+    fun version(binary: String, project: Project): Version
 
-    @NotNull Versions detailedVersions(@NotNull String binary, @NotNull Project project) throws CommandFailedException;
+    @Throws(CommandFailedException::class)
+    fun detailedVersions(binary: String, project: Project): Versions
 
-    @NotNull Description describe(@NotNull String binary, @NotNull Project project) throws CommandFailedException;
+    @Throws(CommandFailedException::class)
+    fun describe(binary: String, project: Project): Description
 
-    static Ddev getInstance() {
-        return ApplicationManager.getApplication().getService(Ddev.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(): Ddev? {
+            return ApplicationManager.getApplication().getService<Ddev?>(Ddev::class.java)
+        }
     }
 }

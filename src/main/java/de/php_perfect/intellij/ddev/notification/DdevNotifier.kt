@@ -1,28 +1,30 @@
-package de.php_perfect.intellij.ddev.notification;
+package de.php_perfect.intellij.ddev.notification
 
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project
 
-public interface DdevNotifier {
-    void notifyInstallDdev();
+interface DdevNotifier {
+    fun notifyInstallDdev()
 
-    void notifyNewVersionAvailable(@NotNull String currentVersion, @NotNull String newVersion);
+    fun notifyNewVersionAvailable(currentVersion: String, newVersion: String)
 
-    void notifyAlreadyLatestVersion();
+    fun notifyAlreadyLatestVersion()
 
-    void notifyMissingPlugin(@NotNull String pluginName);
+    fun notifyMissingPlugin(pluginName: String)
 
-    void notifyPhpInterpreterUpdated(@NotNull String phpVersion);
+    fun notifyPhpInterpreterUpdated(phpVersion: String)
 
-    void notifyUnknownStateEntered();
+    fun notifyUnknownStateEntered()
 
-    void notifyErrorReportSent(@NotNull String id);
+    fun notifyErrorReportSent(id: String)
 
-    void notifyDdevDetected(@NotNull String binary);
+    fun notifyDdevDetected(binary: String)
 
-    void notifyDockerNotAvailable(final @NotNull String context);
+    fun notifyDockerNotAvailable(context: String)
 
-    static DdevNotifier getInstance(@NotNull Project project) {
-        return project.getService(DdevNotifier.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(project: Project): DdevNotifier? {
+            return project.getService<DdevNotifier?>(DdevNotifier::class.java)
+        }
     }
 }

@@ -1,14 +1,16 @@
-package de.php_perfect.intellij.ddev.cmd;
+package de.php_perfect.intellij.ddev.cmd
 
-import com.intellij.openapi.application.ApplicationManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.application.ApplicationManager
 
-public interface Docker {
-    boolean isRunning(String workDirectory);
+interface Docker {
+    fun isRunning(workDirectory: String?): Boolean
 
-    @NotNull String getContext(String workDirectory);
+    fun getContext(workDirectory: String?): String
 
-    static Docker getInstance() {
-        return ApplicationManager.getApplication().getService(Docker.class);
+    companion object {
+        @JvmStatic
+        fun getInstance(): Docker? {
+            return ApplicationManager.getApplication().getService<Docker?>(Docker::class.java)
+        }
     }
 }

@@ -1,11 +1,13 @@
-package de.php_perfect.intellij.ddev;
+package de.php_perfect.intellij.ddev
 
-import com.intellij.util.messages.Topic;
-import de.php_perfect.intellij.ddev.state.State;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.util.messages.Topic
+import de.php_perfect.intellij.ddev.state.State
 
-public interface StateInitializedListener {
-    Topic<StateInitializedListener> STATE_INITIALIZED = Topic.create("DDEV state initialized", StateInitializedListener.class);
+interface StateInitializedListener {
+    fun onStateInitialized(state: State)
 
-    void onStateInitialized(@NotNull State state);
+    companion object {
+        val STATE_INITIALIZED: Topic<StateInitializedListener> =
+            Topic.create<StateInitializedListener>("DDEV state initialized", StateInitializedListener::class.java)
+    }
 }

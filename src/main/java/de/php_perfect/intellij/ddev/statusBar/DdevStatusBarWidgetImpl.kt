@@ -1,149 +1,138 @@
-package de.php_perfect.intellij.ddev.statusBar;
+package de.php_perfect.intellij.ddev.statusBar
 
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.NlsContexts;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
-import com.intellij.openapi.wm.impl.status.EditorBasedStatusBarPopup;
-import com.intellij.util.concurrency.EdtExecutorService;
-import com.intellij.util.messages.MessageBus;
-import de.php_perfect.intellij.ddev.DdevIntegrationBundle;
-import de.php_perfect.intellij.ddev.StateChangedListener;
-import de.php_perfect.intellij.ddev.cmd.Description;
-import de.php_perfect.intellij.ddev.icons.DdevIntegrationIcons;
-import de.php_perfect.intellij.ddev.state.State;
-import de.php_perfect.intellij.ddev.tutorial.GotItTutorial;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.ListPopup
+import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.NlsContexts.StatusBarText
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.wm.StatusBar
+import com.intellij.openapi.wm.StatusBarWidget
+import com.intellij.openapi.wm.impl.status.EditorBasedStatusBarPopup
+import com.intellij.util.concurrency.EdtExecutorService
+import com.intellij.util.messages.Topic
+import com.intellij.util.ui.update.UiNotifyConnector
+import de.php_perfect.intellij.ddev.DdevIntegrationBundle
+import de.php_perfect.intellij.ddev.StateChangedListener
+import de.php_perfect.intellij.ddev.cmd.Description
+import de.php_perfect.intellij.ddev.icons.DdevIntegrationIcons
+import de.php_perfect.intellij.ddev.state.State
+import de.php_perfect.intellij.ddev.tutorial.GotItTutorial
+import org.jetbrains.annotations.NonNls
+import java.util.concurrent.TimeUnit
+import javax.swing.JComponent
 
-import javax.swing.*;
-import java.util.concurrent.TimeUnit;
-
-import static com.intellij.util.ui.update.UiNotifyConnector.doWhenFirstShown;
-
-public final class DdevStatusBarWidgetImpl extends EditorBasedStatusBarPopup {
-    private static final @NotNull Logger LOG = Logger.getInstance(DdevStatusBarWidgetImpl.class);
-    private static final Key<State> DDEV_STATE_KEY = new Key<>("DdevIntegration.State");
-    private static final @NotNull String ACTION_GROUP = "DdevIntegration.Services";
-    public static final @NotNull String WIDGET_ID = "DdevStatusBarWidget";
-
-    public DdevStatusBarWidgetImpl(@NotNull Project project) {
-        super(project, false);
+class DdevStatusBarWidgetImpl(project: Project) : EditorBasedStatusBarPopup(project, false) {
+    override fun ID(): @NonNls String {
+        return WIDGET_ID
     }
 
-    @Override
-    public @NonNls @NotNull String ID() {
-        return WIDGET_ID;
-    }
-
-    @Override
-    public void install(@NotNull StatusBar statusBar) {
-        if (statusBar.getProject() != null && !statusBar.getProject().equals(this.getProject())) {
-            LOG.warn("Cannot install widget from one project on status bar of another project");
-            return;
+    override fun install(statusBar: StatusBar) {
+        if (statusBar.project != null && statusBar.project != this.project) {
+            LOG.warn("Cannot install widget from one project on status bar of another project")
+            return
         }
 
-        super.install(statusBar);
-        registerUpdateListener();
-        doWhenFirstShown(super.getComponent(), () -> delayTutorial(super.getComponent()), this);
+        super.install(statusBar)
+        registerUpdateListener()
+        UiNotifyConnector.doWhenFirstShown(super.getComponent(), Runnable { delayTutorial(super.getComponent()) }, this)
     }
 
-    private void registerUpdateListener() {
-        MessageBus messageBus = this.getProject().getMessageBus();
-        messageBus.connect(this).subscribe(StateChangedListener.DDEV_CHANGED, new StatusBarUpdateListener());
+    private fun registerUpdateListener() {
+        val messageBus = this.project.messageBus
+        messageBus.connect(this).subscribe(StateChangedListener.DDEV_CHANGED, StatusBarUpdateListener())
     }
 
-    private final class StatusBarUpdateListener implements StateChangedListener {
-        @Override
-        public void onDdevChanged(@NotNull State state) {
-            DdevStatusBarWidgetImpl.this.putState(state);
-            DdevStatusBarWidgetImpl.this.update();
+    private inner class StatusBarUpdateListener : StateChangedListener {
+        override fun onDdevChanged(state: State) {
+            this@DdevStatusBarWidgetImpl.putState(state)
+            this@DdevStatusBarWidgetImpl.update()
         }
     }
 
-    @Override
-    protected @NotNull ListPopup createPopup(@NotNull DataContext context) {
-        ActionGroup group = (ActionGroup) ActionManager.getInstance().getAction(ACTION_GROUP);
-        String place = ActionPlaces.getPopupPlace(ActionPlaces.STATUS_BAR_PLACE);
+    protected override fun createPopup(context: DataContext): ListPopup {
+        val group = ActionManager.getInstance().getAction(ACTION_GROUP) as ActionGroup
+        val place = ActionPlaces.getPopupPlace(ActionPlaces.STATUS_BAR_PLACE)
 
-        return JBPopupFactory.getInstance().createActionGroupPopup(null, group, context, JBPopupFactory.ActionSelectionAid.SPEEDSEARCH, false, place);
+        return JBPopupFactory.getInstance()
+            .createActionGroupPopup(null, group, context, JBPopupFactory.ActionSelectionAid.SPEEDSEARCH, false, place)
     }
 
-    @Override
-    protected @NotNull StatusBarWidget createInstance(@NotNull Project project) {
-        return new DdevStatusBarWidgetImpl(project);
+    protected override fun createInstance(project: Project): StatusBarWidget {
+        return DdevStatusBarWidgetImpl(project)
     }
 
-    @Override
-    protected @NotNull WidgetState getWidgetState(@Nullable VirtualFile file) {
-        State state = this.fetchState();
+    protected override fun getWidgetState(file: VirtualFile?): WidgetState {
+        val state = this.fetchState()
         if (state == null || !state.isAvailable() || !state.isConfigured()) {
-            return WidgetState.HIDDEN;
+            return WidgetState.HIDDEN
         }
 
-        String toolTipText = DdevIntegrationBundle.message("statusBar.toolTip");
-        String statusText = this.getStatusText();
-        WidgetState widgetState = new WidgetState(toolTipText, statusText, true);
-        widgetState.setIcon(DdevIntegrationIcons.DdevLogoMono);
+        val toolTipText = DdevIntegrationBundle.message("statusBar.toolTip")
+        val statusText = this.getStatusText()
+        val widgetState = WidgetState(toolTipText, statusText, true)
+        widgetState.icon = DdevIntegrationIcons.DdevLogoMono
 
-        return widgetState;
+        return widgetState
     }
 
-    private void delayTutorial(@NotNull JComponent component) {
-        EdtExecutorService.getScheduledExecutorInstance().schedule(() -> {
-            if (!this.isDisposed()) {
-                GotItTutorial.getInstance().showStatusBarTutorial(component, this);
+    private fun delayTutorial(component: JComponent) {
+        EdtExecutorService.getScheduledExecutorInstance().schedule(Runnable {
+            if (!this.isDisposed) {
+                GotItTutorial.getInstance()?.showStatusBarTutorial(component, this)
             }
-        }, 3000, TimeUnit.MILLISECONDS);
+        }, 3000, TimeUnit.MILLISECONDS)
     }
 
-    private @NotNull @NlsContexts.StatusBarText String getStatusText() {
-        Description description = null;
-        Description.Status status = null;
-        State state = this.fetchState();
+    private fun getStatusText(): @StatusBarText String {
+        var description: Description? = null
+        var status: Description.Status? = null
+        val state = this.fetchState()
 
         if (state != null) {
-            description = state.getDescription();
+            description = state.getDescription()
         }
 
         if (description != null) {
-            status = description.getStatus();
+            status = description.getStatus()
         }
 
-        return this.buildStatusMessage(status);
+        return this.buildStatusMessage(status)
     }
 
-    private @NotNull @NlsContexts.StatusBarText String buildStatusMessage(@Nullable Description.Status status) {
+    private fun buildStatusMessage(status: Description.Status?): @StatusBarText String {
         if (status == null) {
-            return DdevIntegrationBundle.message("status.Undefined");
+            return DdevIntegrationBundle.message("status.Undefined")
         }
 
-        return switch (status) {
-            case RUNNING -> DdevIntegrationBundle.message("status.Running");
-            case STARTING -> DdevIntegrationBundle.message("status.Starting");
-            case STOPPED -> DdevIntegrationBundle.message("status.Stopped");
-            case DIR_MISSING -> DdevIntegrationBundle.message("status.DirMissing");
-            case CONFIG_MISSING -> DdevIntegrationBundle.message("status.ConfigMissing");
-            case PAUSED -> DdevIntegrationBundle.message("status.Paused");
-            case UNHEALTHY -> DdevIntegrationBundle.message("status.Unhealthy");
-        };
+        return when (status) {
+            Description.Status.RUNNING -> DdevIntegrationBundle.message("status.Running")
+            Description.Status.STARTING -> DdevIntegrationBundle.message("status.Starting")
+            Description.Status.STOPPED -> DdevIntegrationBundle.message("status.Stopped")
+            Description.Status.DIR_MISSING -> DdevIntegrationBundle.message("status.DirMissing")
+            Description.Status.CONFIG_MISSING -> DdevIntegrationBundle.message("status.ConfigMissing")
+            Description.Status.PAUSED -> DdevIntegrationBundle.message("status.Paused")
+            Description.Status.UNHEALTHY -> DdevIntegrationBundle.message("status.Unhealthy")
+        }
     }
 
-    private void putState(State state) {
-        this.getProject().putUserData(DDEV_STATE_KEY, state);
+    private fun putState(state: State?) {
+        this.project.putUserData<State?>(DDEV_STATE_KEY, state)
     }
 
-    private State fetchState() {
-        return this.getProject().getUserData(DDEV_STATE_KEY);
+    private fun fetchState(): State? {
+        return this.project.getUserData<State?>(DDEV_STATE_KEY)
+    }
+
+    companion object {
+        private val LOG = Logger.getInstance(DdevStatusBarWidgetImpl::class.java)
+        private val DDEV_STATE_KEY = Key<State?>("DdevIntegration.State")
+        private const val ACTION_GROUP = "DdevIntegration.Services"
+        const val WIDGET_ID: String = "DdevStatusBarWidget"
     }
 }
